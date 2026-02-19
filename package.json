@@ -1,0 +1,19 @@
+{
+  "name": "baking-comparer",
+  "version": "1.0.0",
+  "description": "Compare baking recipes side-by-side with baker's percentages and scientific analysis",
+  "main": "server.js",
+  "scripts": {
+    "start": "node --env-file=.env server.js",
+    "dev": "node --env-file=.env --watch server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.77.0",
+    "@hono/node-server": "^1.19.9",
+    "dotenv": "^17.3.1",
+    "hono": "^4.11.10"
+  }
+}
