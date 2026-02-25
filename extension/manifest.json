@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Baking Comparer",
+  "name": "Cookie Parser",
   "version": "1.0",
-  "description": "Queue recipe URLs and compare them in Baking Comparer",
+  "description": "Queue baking recipe URLs and compare them in Cookie Parser",
   "permissions": ["storage"],
   "action": {
     "default_popup": "popup.html",

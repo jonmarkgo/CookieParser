@@ -1,7 +1,7 @@
 {
-  "name": "baking-comparer",
+  "name": "cookie-parser",
   "version": "1.0.0",
-  "description": "Compare baking recipes side-by-side with baker's percentages and scientific analysis",
+  "description": "Parse, compare, and understand baking recipes with baker's percentages, ratios, and AI-powered analysis",
   "main": "server.js",
   "scripts": {
     "start": "node --env-file=.env server.js",

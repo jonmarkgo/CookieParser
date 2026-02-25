@@ -149,5 +149,5 @@ app.post("/api/compare", async (c) => {
 
 const port = process.env.PORT || 3000;
 serve({ fetch: app.fetch, port }, () => {
-  console.log(`Baking Comparer running at http://localhost:${port}`);
+  console.log(`Cookie Parser running at http://localhost:${port}`);
 });
