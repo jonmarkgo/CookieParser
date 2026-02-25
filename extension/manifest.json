@@ -3,7 +3,7 @@
   "name": "Cookie Parser",
   "version": "1.0",
   "description": "Queue baking recipe URLs and compare them in Cookie Parser",
-  "permissions": ["storage"],
+  "permissions": ["storage", "activeTab", "tabs"],
   "action": {
     "default_popup": "popup.html",
     "default_icon": "icon.png"

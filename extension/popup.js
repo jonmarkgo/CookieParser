@@ -2,12 +2,12 @@ const COLORS = ["#6366f1", "#f59e0b", "#10b981", "#ef4444"];
 const MAX_RECIPES = 4;
 
 let recipes = [];
-let appUrl = "http://localhost:3000";
+let appUrl = "https://baking-app.exe.xyz";
 
 // Load saved state
 chrome.storage.local.get(["recipes", "appUrl"], (data) => {
   recipes = data.recipes || [];
-  appUrl = data.appUrl || "http://localhost:3000";
+  appUrl = data.appUrl || "https://baking-app.exe.xyz";
   document.getElementById("app-url").value = appUrl;
   render();
 });
