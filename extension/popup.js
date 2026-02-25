@@ -26,12 +26,15 @@ document.getElementById("add-btn").addEventListener("click", async () => {
   render();
 });
 
-// Compare — open app with URLs as params
+// Compare — open app with URLs as params, then clear queue
 document.getElementById("compare-btn").addEventListener("click", () => {
   if (recipes.length < 2) return;
   const params = recipes.map((u) => `r=${encodeURIComponent(u)}`).join("&");
   const url = `${appUrl}?${params}&auto=1`;
   chrome.tabs.create({ url });
+  recipes = [];
+  save();
+  render();
 });
 
 // Clear all
