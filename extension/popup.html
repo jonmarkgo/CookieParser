@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { width: 320px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f9fafb; }
+    .header { background: #4f46e5; color: white; padding: 12px 16px; }
+    .header h1 { font-size: 14px; font-weight: 600; }
+    .header p { font-size: 11px; opacity: 0.8; margin-top: 2px; }
+    .body { padding: 12px 16px; }
+    .recipe-list { list-style: none; margin: 8px 0; }
+    .recipe-list li {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 10px; background: white; border: 1px solid #e5e7eb;
+      border-radius: 8px; margin-bottom: 6px; font-size: 12px;
+    }
+    .recipe-list .num {
+      width: 20px; height: 20px; border-radius: 50%; display: flex;
+      align-items: center; justify-content: center; font-weight: 700;
+      font-size: 11px; color: white; flex-shrink: 0;
+    }
+    .recipe-list .url { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #374151; }
+    .recipe-list .remove { cursor: pointer; color: #9ca3af; font-size: 16px; padding: 0 4px; border: none; background: none; }
+    .recipe-list .remove:hover { color: #ef4444; }
+    .empty { text-align: center; padding: 20px 0; color: #9ca3af; font-size: 13px; }
+    .actions { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+    .btn { padding: 10px; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-primary { background: #4f46e5; color: white; }
+    .btn-primary:hover:not(:disabled) { background: #4338ca; }
+    .btn-add { background: #e0e7ff; color: #4f46e5; }
+    .btn-add:hover:not(:disabled) { background: #c7d2fe; }
+    .btn-clear { background: transparent; color: #9ca3af; font-weight: 400; font-size: 12px; }
+    .btn-clear:hover { color: #ef4444; }
+    .settings { margin-top: 12px; padding-top: 10px; border-top: 1px solid #e5e7eb; }
+    .settings label { font-size: 11px; color: #6b7280; display: flex; align-items: center; gap: 6px; }
+    .settings input[type="text"] {
+      width: 100%; padding: 6px 8px; border: 1px solid #e5e7eb; border-radius: 6px;
+      font-size: 11px; margin-top: 4px; font-family: monospace;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Baking Comparer</h1>
+    <p id="count">No recipes queued</p>
+  </div>
+  <div class="body">
+    <ul class="recipe-list" id="list"></ul>
+    <div id="empty" class="empty">Browse to a recipe page and click "Add This Recipe"</div>
+
+    <div class="actions">
+      <button class="btn btn-add" id="add-btn">Add This Recipe</button>
+      <button class="btn btn-primary" id="compare-btn" disabled>Compare Recipes</button>
+      <button class="btn btn-clear" id="clear-btn" style="display:none">Clear all</button>
+    </div>
+
+    <div class="settings">
+      <label>App URL:
+        <input type="text" id="app-url" value="http://localhost:3000" spellcheck="false">
+      </label>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

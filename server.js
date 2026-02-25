@@ -5,7 +5,7 @@ const { serveStatic } = require("@hono/node-server/serve-static");
 const { scrapeRecipe, applyIngredientSections } = require("./lib/scraper");
 const { parseIngredients } = require("./lib/ingredient-parser");
 const { analyzeRecipe, compareRecipes } = require("./lib/baking-math");
-const { aiBatchParseIngredients, aiCompareRecipes } = require("./lib/ai");
+const { aiBatchParseIngredients, aiExtractRecipe, aiCompareRecipes, aiGenerateConcepts } = require("./lib/ai");
 const { BAKE_TYPES, detectBakeType, getProfile, getRecipeTags } = require("./lib/bake-types");
 
 const app = new Hono();
@@ -19,19 +19,43 @@ app.post("/api/scrape", async (c) => {
     const { url } = await c.req.json();
     if (!url) return c.json({ error: "URL is required" }, 400);
 
-    const recipe = await scrapeRecipe(url);
+    let recipe = await scrapeRecipe(url);
+
+    // If no JSON-LD found, use AI to extract recipe from HTML
+    if (recipe._needsAI) {
+      console.log(`[AI] No JSON-LD found, extracting recipe from HTML...`);
+      const extracted = await aiExtractRecipe(recipe.html);
+      console.log(`[AI] Extracted: "${extracted.title}" with ${extracted.rawIngredients.length} ingredients`);
+      recipe = {
+        title: extracted.title,
+        source: url,
+        servings: extracted.servings,
+        rawIngredients: extracted.rawIngredients,
+        ingredients: [],
+        sections: [],
+        instructions: extracted.instructions || [],
+      };
+    }
 
     // Try AI-powered batch parsing (Haiku 4.5) — handles parsing + section detection
     try {
+      console.log(`[AI] Batch parsing ${Array.isArray(recipe.rawIngredients) ? recipe.rawIngredients.length : typeof recipe.rawIngredients} raw ingredients...`);
       const aiParsed = await aiBatchParseIngredients(recipe.rawIngredients);
       recipe.ingredients = aiParsed;
 
       const secondary = aiParsed.filter(i => i.excludeFromAnalysis);
       console.log(`[AI] Parsed ${aiParsed.length} ingredients via Haiku 4.5 (${secondary.length} secondary excluded)`);
     } catch (aiErr) {
-      // AI failed — keep rule-based parsing from scraper (already has HTML-based section detection)
+      // AI failed — keep rule-based parsing from scraper (if available)
       console.warn(`[AI] Batch parse failed, using rule-based fallback: ${aiErr.message}`);
+      if (!recipe.ingredients || recipe.ingredients.length === 0) {
+        throw new Error("No ingredient list found on this page. This may be a blog post about a recipe rather than the recipe itself — try the original recipe URL instead.");
+      }
     }
+
+    // Don't send raw HTML back to client
+    delete recipe.html;
+    delete recipe._needsAI;
 
     return c.json(recipe);
   } catch (err) {
@@ -94,13 +118,19 @@ app.post("/api/compare", async (c) => {
       a.tags = getRecipeTags(a, bakeType);
     }
 
-    // Get AI insights (Sonnet 4.6)
-    let insights = "";
-    try {
-      insights = await aiCompareRecipes(analyses, bakeType);
-    } catch (err) {
-      insights = "AI analysis unavailable: " + err.message;
-    }
+    // Get AI insights + concepts in parallel
+    const [insightsResult, conceptsResult] = await Promise.allSettled([
+      aiCompareRecipes(analyses, bakeType),
+      aiGenerateConcepts(analyses, bakeType),
+    ]);
+
+    const insights = insightsResult.status === "fulfilled"
+      ? insightsResult.value
+      : "AI analysis unavailable: " + insightsResult.reason?.message;
+
+    const concepts = conceptsResult.status === "fulfilled"
+      ? conceptsResult.value
+      : [];
 
     return c.json({
       ...comparison,
@@ -109,7 +139,7 @@ app.post("/api/compare", async (c) => {
       bakeTypeLabel: profile.label,
       bakeTypeWarning,
       referenceRatio: profile.referenceRatio,
-      concepts: profile.concepts,
+      concepts,
       ratioDescriptions: profile.ratioDescriptions,
     });
   } catch (err) {

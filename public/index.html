@@ -37,6 +37,10 @@
     .insight-card:nth-child(3) h2 { color: #059669; }
     .insight-card:nth-child(4) { border-left-color: #ef4444; }
     .insight-card:nth-child(4) h2 { color: #dc2626; }
+    .insight-card:nth-child(5) { border-left-color: #8b5cf6; }
+    .insight-card:nth-child(5) h2 { color: #7c3aed; }
+    .insight-card:nth-child(6) { border-left-color: #06b6d4; }
+    .insight-card:nth-child(6) h2 { color: #0891b2; }
     .spinner { border: 3px solid #e5e7eb; border-top: 3px solid #6366f1; border-radius: 50%; width: 20px; height: 20px; animation: spin 0.8s linear infinite; display: inline-block; }
     @keyframes spin { to { transform: rotate(360deg); } }
   </style>
@@ -573,6 +577,34 @@
       d.textContent = str;
       return d.innerHTML;
     }
+
+    // URL param support: ?r=url1&r=url2&r=url3 (up to 4)
+    // Also supports ?auto=1 to auto-compare on load
+    (function loadFromUrlParams() {
+      const params = new URLSearchParams(window.location.search);
+      const urls = params.getAll("r").filter(Boolean);
+      if (urls.length === 0) return;
+
+      // Ensure we're in URL mode
+      if (!isUrlMode) toggleMode();
+
+      // Fill existing inputs and add more if needed
+      const existingInputs = document.querySelectorAll(".url-input");
+      for (let i = 0; i < urls.length && i < 4; i++) {
+        if (i < existingInputs.length) {
+          existingInputs[i].value = urls[i];
+        } else {
+          addUrlInput();
+          const allInputs = document.querySelectorAll(".url-input");
+          allInputs[allInputs.length - 1].value = urls[i];
+        }
+      }
+
+      // Auto-compare if ?auto=1
+      if (params.get("auto") === "1" && urls.length >= 2) {
+        compare();
+      }
+    })();
   </script>
 </body>
 </html>
