@@ -4,73 +4,99 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Cookie Parser</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <style>
-    .bar-fill { transition: width 0.6s ease-out; }
-    .fade-in { animation: fadeIn 0.3s ease-in; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-    .diff-high { background-color: #fef3c7; }
-    /* Collapsible sections */
-    .section-toggle { cursor: pointer; user-select: none; }
-    .section-toggle .chevron { transition: transform 0.2s ease; display: inline-block; }
-    .section-toggle.collapsed .chevron { transform: rotate(-90deg); }
-    .section-body { transition: max-height 0.3s ease, opacity 0.2s ease; overflow: hidden; }
-    .section-body.collapsed { max-height: 0 !important; opacity: 0; padding-top: 0; padding-bottom: 0; }
-    /* Compact card ingredient toggle */
-    .card-ingredients { max-height: 0; overflow: hidden; opacity: 0; transition: max-height 0.3s ease, opacity 0.2s ease, margin 0.2s ease; margin-top: 0; }
-    .card-ingredients.expanded { max-height: 2000px; opacity: 1; margin-top: 0.75rem; }
-    /* Markdown rendered content */
-    .md-content h1 { font-size: 1.5rem; font-weight: 700; margin: 1.5rem 0 0.5rem; color: #111827; }
-    .md-content h2 { font-size: 1.25rem; font-weight: 700; margin: 1.25rem 0 0.5rem; color: #1f2937; }
-    .md-content h3 { font-size: 1.1rem; font-weight: 600; margin: 1rem 0 0.25rem; color: #1f2937; }
-    .md-content p { margin: 0.75rem 0; line-height: 1.7; }
-    .md-content ul, .md-content ol { margin: 0.5rem 0; padding-left: 1.5rem; }
+    body { font-family: 'Inter', system-ui, -apple-system, sans-serif; -webkit-font-smoothing: antialiased; background: #f8fafc; }
+    td, th { font-variant-numeric: tabular-nums; }
+
+    /* Bar charts */
+    .bar-fill { transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 6px; background-image: linear-gradient(to bottom, rgba(255,255,255,0.15) 0%, transparent 100%); }
+
+    /* Staggered results */
+    #results > * { animation: slideUp 0.35s ease-out both; }
+    #results > *:nth-child(1) { animation-delay: 0ms; }
+    #results > *:nth-child(2) { animation-delay: 60ms; }
+    #results > *:nth-child(3) { animation-delay: 120ms; }
+    #results > *:nth-child(4) { animation-delay: 180ms; }
+    #results > *:nth-child(5) { animation-delay: 240ms; }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+    .diff-high { background-color: #fef9c3; border-radius: 4px; }
+
+    /* Markdown */
+    .md-content h2 { font-size: 1rem; font-weight: 700; margin: 0.75rem 0 0.35rem; color: #0f172a; }
+    .md-content p { margin: 0.35rem 0; line-height: 1.6; color: #475569; font-size: 13px; }
+    .md-content ul, .md-content ol { margin: 0.2rem 0; padding-left: 1.25rem; }
     .md-content ul { list-style-type: disc; }
-    .md-content ol { list-style-type: decimal; }
-    .md-content li { margin: 0.25rem 0; line-height: 1.6; }
-    .md-content strong { font-weight: 600; color: #111827; }
-    .md-content em { font-style: italic; }
-    .md-content code { background: #f3f4f6; padding: 0.1rem 0.3rem; border-radius: 0.25rem; font-size: 0.875rem; }
-    .md-content blockquote { border-left: 3px solid #d1d5db; padding-left: 1rem; margin: 0.75rem 0; color: #6b7280; }
-    /* Analysis section cards */
-    .insight-card { background: #f9fafb; border-radius: 0.75rem; padding: 1rem 1.25rem; border-left: 4px solid #d1d5db; }
-    .insight-card h2 { margin: 0 0 0.5rem; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.03em; }
-    .insight-card ul { margin: 0.25rem 0 0; }
-    .insight-card li { font-size: 0.9rem; line-height: 1.5; margin: 0.2rem 0; }
-    .insight-card:nth-child(1) { border-left-color: #6366f1; }
-    .insight-card:nth-child(1) h2 { color: #4f46e5; }
-    .insight-card:nth-child(2) { border-left-color: #f59e0b; }
-    .insight-card:nth-child(2) h2 { color: #d97706; }
-    .insight-card:nth-child(3) { border-left-color: #10b981; }
-    .insight-card:nth-child(3) h2 { color: #059669; }
-    .insight-card:nth-child(4) { border-left-color: #ef4444; }
-    .insight-card:nth-child(4) h2 { color: #dc2626; }
-    .insight-card:nth-child(5) { border-left-color: #8b5cf6; }
-    .insight-card:nth-child(5) h2 { color: #7c3aed; }
-    .insight-card:nth-child(6) { border-left-color: #06b6d4; }
-    .insight-card:nth-child(6) h2 { color: #0891b2; }
+    .md-content li { margin: 2px 0; line-height: 1.55; color: #475569; font-size: 13px; }
+    .md-content strong { font-weight: 600; color: #0f172a; }
+
+    /* Insight cards */
+    .insight-card { background: #fafbfc; border-radius: 10px; padding: 14px 18px; border: 1px solid #e2e8f0; border-left: 4px solid #cbd5e1; }
+    .insight-card h2 { margin: 0 0 6px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+    .insight-card ul { margin: 2px 0 0; }
+    .insight-card li { font-size: 13px; line-height: 1.55; margin: 2px 0; }
+    .insight-card:nth-child(1) { border-left-color: #6366f1; } .insight-card:nth-child(1) h2 { color: #4f46e5; }
+    .insight-card:nth-child(2) { border-left-color: #f59e0b; } .insight-card:nth-child(2) h2 { color: #d97706; }
+    .insight-card:nth-child(3) { border-left-color: #10b981; } .insight-card:nth-child(3) h2 { color: #059669; }
+    .insight-card:nth-child(4) { border-left-color: #ef4444; } .insight-card:nth-child(4) h2 { color: #dc2626; }
+    .insight-card:nth-child(5) { border-left-color: #8b5cf6; } .insight-card:nth-child(5) h2 { color: #7c3aed; }
+    .insight-card:nth-child(6) { border-left-color: #06b6d4; } .insight-card:nth-child(6) h2 { color: #0891b2; }
+
     .spinner { border: 3px solid #e5e7eb; border-top: 3px solid #6366f1; border-radius: 50%; width: 20px; height: 20px; animation: spin 0.8s linear infinite; display: inline-block; }
     @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Collapsible */
+    .section-toggle { cursor: pointer; user-select: none; }
+    .section-toggle .chevron { transition: transform 0.2s cubic-bezier(0.4,0,0.2,1); display: inline-block; font-size: 12px; color: #94a3b8; }
+    .section-toggle:hover .chevron { color: #64748b; }
+    .section-toggle.collapsed .chevron { transform: rotate(-90deg); }
+    .section-body { transition: max-height 0.3s ease, opacity 0.2s ease; overflow: hidden; }
+    .section-body.collapsed { max-height: 0 !important; opacity: 0; }
+    .card-ingredients { max-height: 0; overflow: hidden; opacity: 0; transition: max-height 0.3s ease, opacity 0.2s ease; }
+    .card-ingredients.expanded { max-height: 2000px; opacity: 1; }
+
+    /* Recipe card */
+    .recipe-card { border: 1px solid #e2e8f0; border-top: 3px solid var(--accent); border-radius: 12px; background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.04); transition: transform 0.15s ease, box-shadow 0.2s ease; }
+    .recipe-card:hover { transform: translateY(-2px); box-shadow: 0 8px 25px -5px rgba(0,0,0,0.08); }
+
+    /* Card elevation */
+    .card { background: white; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 1px 2px 0 rgba(0,0,0,0.03), 0 1px 6px -1px rgba(0,0,0,0.02); }
+
+    /* Compare button */
+    #compare-btn { background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); box-shadow: 0 1px 2px rgba(99,102,241,0.3), 0 4px 12px rgba(99,102,241,0.15); transition: all 0.15s ease; }
+    #compare-btn:hover:not(:disabled) { box-shadow: 0 1px 2px rgba(99,102,241,0.4), 0 8px 20px rgba(99,102,241,0.25); transform: translateY(-1px); }
+    #compare-btn:active:not(:disabled) { transform: translateY(0); }
+
+    /* Table */
+    #comparison-table thead { position: sticky; top: 0; z-index: 10; background: white; }
+    #comparison-table tbody tr { transition: background-color 0.1s ease; }
+    #comparison-table tbody tr:hover { background-color: #f8fafc; }
+
+    /* Focus */
+    input:focus, textarea:focus, select:focus { border-color: #a5b4fc !important; box-shadow: 0 0 0 3px rgba(99,102,241,0.1) !important; outline: none; }
   </style>
 </head>
-<body class="bg-gray-50 min-h-screen">
-  <div class="max-w-6xl mx-auto px-4 py-8">
+<body class="min-h-screen">
+  <div class="max-w-6xl mx-auto px-6 py-8">
     <!-- Header -->
     <header class="text-center mb-10">
-      <h1 class="text-4xl font-bold text-gray-900 mb-2">Cookie Parser</h1>
-      <p class="text-gray-600 text-lg">Parse, compare, and understand baking recipes — baker's percentages, ratios, technique, and the science behind each recipe.</p>
+      <h1 class="text-[28px] font-bold text-slate-900 mb-2 tracking-tight">Cookie Parser</h1>
+      <p class="text-slate-500 text-sm max-w-lg mx-auto leading-relaxed">Parse, compare, and understand baking recipes — baker's percentages, ratios, technique, and the science behind each recipe.</p>
     </header>
 
     <!-- Input Section -->
-    <section id="input-section" class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+    <section id="input-section" class="card p-6 mb-8">
       <div class="flex items-center justify-between mb-4">
-        <h2 class="text-xl font-semibold text-gray-800">Recipes</h2>
+        <h2 class="text-lg font-semibold text-slate-800">Recipes</h2>
         <div class="flex gap-2">
-          <button onclick="toggleHistory()" id="history-toggle" class="text-sm px-3 py-1.5 rounded-lg border border-gray-300 hover:bg-gray-50 text-gray-600 hidden">
-            History <span id="history-count" class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 text-xs font-bold ml-1"></span>
+          <button onclick="toggleHistory()" id="history-toggle" class="text-xs px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-500 font-medium hidden">
+            History <span id="history-count" class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 text-[10px] font-bold ml-1"></span>
           </button>
-          <button onclick="toggleMode()" id="mode-toggle" class="text-sm px-3 py-1.5 rounded-lg border border-gray-300 hover:bg-gray-50 text-gray-600">
+          <button onclick="toggleMode()" id="mode-toggle" class="text-xs px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-500 font-medium">
             Switch to Manual Entry
           </button>
         </div>
@@ -80,36 +106,36 @@
       <div id="url-mode">
         <div id="url-inputs" class="space-y-3">
           <div class="flex gap-2 items-center">
-            <span class="text-sm font-medium text-gray-500 w-6">1.</span>
-            <input type="url" class="url-input flex-1 px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none" placeholder="https://example.com/first-recipe">
+            <span class="text-xs font-medium text-slate-400 w-6">1.</span>
+            <input type="url" class="url-input flex-1 px-4 py-2.5 rounded-lg border border-slate-200 text-sm" placeholder="https://example.com/first-recipe">
           </div>
           <div class="flex gap-2 items-center">
-            <span class="text-sm font-medium text-gray-500 w-6">2.</span>
-            <input type="url" class="url-input flex-1 px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none" placeholder="https://example.com/second-recipe">
+            <span class="text-xs font-medium text-slate-400 w-6">2.</span>
+            <input type="url" class="url-input flex-1 px-4 py-2.5 rounded-lg border border-slate-200 text-sm" placeholder="https://example.com/second-recipe">
           </div>
         </div>
-        <button onclick="addUrlInput()" id="add-url-btn" class="mt-3 text-sm text-indigo-600 hover:text-indigo-800 font-medium">+ Add another recipe (up to 4)</button>
+        <button onclick="addUrlInput()" id="add-url-btn" class="mt-3 text-xs text-indigo-600 hover:text-indigo-800 font-medium">+ Add another recipe (up to 4)</button>
       </div>
 
       <!-- Manual Mode -->
       <div id="manual-mode" class="hidden">
         <div id="manual-inputs" class="space-y-4">
-          <div class="manual-recipe border border-gray-200 rounded-lg p-4">
-            <input type="text" class="recipe-title w-full px-3 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none mb-2" placeholder="Recipe title">
-            <textarea class="recipe-ingredients w-full px-3 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none h-32 text-sm font-mono" placeholder="One ingredient per line, e.g.:&#10;2 1/4 cups all-purpose flour&#10;1 cup butter, softened&#10;3/4 cup sugar&#10;2 large eggs"></textarea>
+          <div class="manual-recipe border border-slate-200 rounded-lg p-4">
+            <input type="text" class="recipe-title w-full px-3 py-2 rounded-lg border border-slate-200 text-sm mb-2" placeholder="Recipe title">
+            <textarea class="recipe-ingredients w-full px-3 py-2 rounded-lg border border-slate-200 h-32 text-xs font-mono" placeholder="One ingredient per line, e.g.:&#10;2 1/4 cups all-purpose flour&#10;1 cup butter, softened&#10;3/4 cup sugar&#10;2 large eggs"></textarea>
           </div>
-          <div class="manual-recipe border border-gray-200 rounded-lg p-4">
-            <input type="text" class="recipe-title w-full px-3 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none mb-2" placeholder="Recipe title">
-            <textarea class="recipe-ingredients w-full px-3 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none h-32 text-sm font-mono" placeholder="One ingredient per line..."></textarea>
+          <div class="manual-recipe border border-slate-200 rounded-lg p-4">
+            <input type="text" class="recipe-title w-full px-3 py-2 rounded-lg border border-slate-200 text-sm mb-2" placeholder="Recipe title">
+            <textarea class="recipe-ingredients w-full px-3 py-2 rounded-lg border border-slate-200 h-32 text-xs font-mono" placeholder="One ingredient per line..."></textarea>
           </div>
         </div>
-        <button onclick="addManualInput()" id="add-manual-btn" class="mt-3 text-sm text-indigo-600 hover:text-indigo-800 font-medium">+ Add another recipe (up to 4)</button>
+        <button onclick="addManualInput()" id="add-manual-btn" class="mt-3 text-xs text-indigo-600 hover:text-indigo-800 font-medium">+ Add another recipe (up to 4)</button>
       </div>
 
       <!-- Bake Type Override -->
       <div class="mt-4 flex items-center gap-3">
-        <label for="bake-type-select" class="text-sm font-medium text-gray-600">Bake type:</label>
-        <select id="bake-type-select" class="px-3 py-1.5 rounded-lg border border-gray-300 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none">
+        <label for="bake-type-select" class="text-xs font-medium text-slate-500">Bake type:</label>
+        <select id="bake-type-select" class="px-3 py-1.5 rounded-lg border border-slate-200 text-xs">
           <option value="">Auto-detect</option>
           <option value="cookie">Cookie</option>
           <option value="cake">Cake</option>
@@ -120,70 +146,70 @@
           <option value="pastry">Pastry</option>
           <option value="other">Other</option>
         </select>
-        <span class="text-xs text-gray-400">Override auto-detection if recipes are misclassified</span>
+        <span class="text-[11px] text-slate-400">Override if recipes are misclassified</span>
       </div>
 
       <!-- Compare Button -->
       <div class="mt-6 flex justify-center">
-        <button onclick="compare()" id="compare-btn" class="px-8 py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 focus:ring-4 focus:ring-indigo-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+        <button onclick="compare()" id="compare-btn" class="px-8 py-3 text-white rounded-lg font-semibold text-sm disabled:opacity-50 disabled:cursor-not-allowed">
           Compare Recipes
         </button>
       </div>
 
       <!-- Status -->
-      <div id="status" class="mt-4 text-center text-sm text-gray-500 hidden"></div>
-      <div id="error" class="mt-4 text-center text-sm text-red-600 hidden"></div>
+      <div id="status" class="mt-4 text-center text-xs text-slate-500 hidden"></div>
+      <div id="error" class="mt-4 text-center text-xs text-red-600 hidden"></div>
     </section>
 
     <!-- History Section -->
     <section id="history-section" class="hidden mb-8">
-      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+      <div class="card p-6">
         <div class="flex items-center justify-between mb-3">
-          <h2 class="text-xl font-semibold text-gray-800">Past Comparisons</h2>
-          <button onclick="clearHistory()" class="text-xs text-gray-400 hover:text-red-500">Clear all</button>
+          <h2 class="text-lg font-semibold text-slate-800">Past Comparisons</h2>
+          <button onclick="clearHistory()" class="text-[11px] text-slate-400 hover:text-red-500">Clear all</button>
         </div>
         <div id="history-list" class="space-y-2"></div>
       </div>
     </section>
 
     <!-- Results Section -->
-    <section id="results" class="hidden fade-in space-y-6">
+    <section id="results" class="hidden space-y-8">
       <!-- Bake Type Badge + Warning -->
       <div id="bake-type-info"></div>
 
-      <!-- AI Analysis (the story — shown first) -->
-      <div id="insights-section" class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <h2 class="text-xl font-semibold text-gray-800 mb-4">Analysis</h2>
-        <div id="insights-content" class="md-content text-gray-700"></div>
+      <!-- AI Analysis -->
+      <div id="insights-section" class="card p-6">
+        <h2 class="text-lg font-semibold text-slate-800 mb-4">Analysis</h2>
+        <div id="insights-content" class="md-content"></div>
       </div>
 
-      <!-- Recipe Cards (compact — ingredient tables collapsed) -->
-      <div id="recipe-cards" class="grid gap-4"></div>
+      <!-- Recipe Cards -->
+      <div id="recipe-cards" class="grid gap-6"></div>
 
       <!-- Key Ratios -->
-      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <h2 class="text-xl font-semibold text-gray-800 mb-4">Key Ratios</h2>
+      <div class="card p-6">
+        <h2 class="text-lg font-semibold text-slate-800 mb-4">Key Ratios</h2>
         <div id="ratio-bars" class="space-y-6"></div>
       </div>
 
-      <!-- Baker's Percentages (collapsed by default) -->
-      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+      <!-- Baker's Percentages (collapsed) -->
+      <div class="card p-6">
         <div class="section-toggle collapsed" onclick="toggleSection(this)">
-          <h2 class="text-xl font-semibold text-gray-800 flex items-center justify-between">
-            <span>Baker's Percentages</span>
-            <span class="chevron text-gray-400 text-sm">&#9660;</span>
+          <h2 class="text-lg font-semibold text-slate-800 flex items-center justify-between">
+            <span>Baker's Percentages <span id="bp-count" class="text-xs font-medium text-slate-400 bg-slate-100 rounded-full px-2 py-0.5 ml-2"></span></span>
+            <span class="chevron">&#9660;</span>
           </h2>
-          <p class="text-sm text-gray-400 mt-1">Full ingredient-by-ingredient comparison across all recipes</p>
+          <p class="text-xs text-slate-400 mt-1">Full ingredient-by-ingredient comparison across all recipes</p>
         </div>
         <div class="section-body collapsed mt-4">
-          <p class="text-sm text-gray-500 mb-4">All values shown as a percentage of total flour weight (flour = 100%). <span class="inline-block px-1.5 py-0.5 rounded text-xs font-medium" style="background:#fef3c7;">Highlighted values</span> show the biggest differences between recipes (&gt;15%).</p>
+          <p class="text-xs text-slate-400 mb-4">All values as % of total flour weight (flour = 100%). <span class="inline-block px-1.5 py-0.5 rounded text-[10px] font-medium" style="background:#fef9c3;">Highlighted</span> = biggest differences (&gt;15%).</p>
           <div class="overflow-x-auto">
-            <table id="comparison-table" class="w-full text-sm"></table>
+            <table id="comparison-table" class="w-full text-[13px]"></table>
           </div>
         </div>
       </div>
 
-      <!-- Key Concepts (educational — last) -->
+      <!-- Key Concepts -->
       <div id="concepts-container"></div>
     </section>
   </div>
@@ -194,7 +220,7 @@
     let manualCount = 2;
 
     const COLORS = ["#6366f1", "#f59e0b", "#10b981", "#ef4444"];
-    const COLOR_BG = ["#eef2ff", "#fffbeb", "#ecfdf5", "#fef2f2"];
+    const COLOR_BG = ["#eef2ff", "#fefce8", "#ecfdf5", "#fef2f2"];
 
     function toggleMode() {
       isUrlMode = !isUrlMode;
@@ -209,9 +235,9 @@
       const div = document.createElement("div");
       div.className = "flex gap-2 items-center";
       div.innerHTML = `
-        <span class="text-sm font-medium text-gray-500 w-6">${urlCount}.</span>
-        <input type="url" class="url-input flex-1 px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none" placeholder="https://example.com/recipe">
-        <button onclick="this.parentElement.remove(); urlCount--; document.getElementById('add-url-btn').classList.toggle('hidden', urlCount>=4);" class="text-gray-400 hover:text-red-500 text-lg px-2">&times;</button>
+        <span class="text-xs font-medium text-slate-400 w-6">${urlCount}.</span>
+        <input type="url" class="url-input flex-1 px-4 py-2.5 rounded-lg border border-slate-200 text-sm" placeholder="https://example.com/recipe">
+        <button onclick="this.parentElement.remove(); urlCount--; document.getElementById('add-url-btn').classList.toggle('hidden', urlCount>=4);" class="text-slate-300 hover:text-red-500 text-lg px-2">&times;</button>
       `;
       document.getElementById("url-inputs").appendChild(div);
       if (urlCount >= 4) document.getElementById("add-url-btn").classList.add("hidden");
@@ -221,11 +247,11 @@
       if (manualCount >= 4) return;
       manualCount++;
       const div = document.createElement("div");
-      div.className = "manual-recipe border border-gray-200 rounded-lg p-4 relative";
+      div.className = "manual-recipe border border-slate-200 rounded-lg p-4 relative";
       div.innerHTML = `
-        <button onclick="this.parentElement.remove(); manualCount--; document.getElementById('add-manual-btn').classList.toggle('hidden', manualCount>=4);" class="absolute top-2 right-2 text-gray-400 hover:text-red-500 text-lg">&times;</button>
-        <input type="text" class="recipe-title w-full px-3 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none mb-2" placeholder="Recipe title">
-        <textarea class="recipe-ingredients w-full px-3 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none h-32 text-sm font-mono" placeholder="One ingredient per line..."></textarea>
+        <button onclick="this.parentElement.remove(); manualCount--; document.getElementById('add-manual-btn').classList.toggle('hidden', manualCount>=4);" class="absolute top-2 right-2 text-slate-300 hover:text-red-500 text-lg">&times;</button>
+        <input type="text" class="recipe-title w-full px-3 py-2 rounded-lg border border-slate-200 text-sm mb-2" placeholder="Recipe title">
+        <textarea class="recipe-ingredients w-full px-3 py-2 rounded-lg border border-slate-200 h-32 text-xs font-mono" placeholder="One ingredient per line..."></textarea>
       `;
       document.getElementById("manual-inputs").appendChild(div);
       if (manualCount >= 4) document.getElementById("add-manual-btn").classList.add("hidden");
@@ -319,74 +345,73 @@
         const text = block.querySelector(".recipe-ingredients").value.trim();
         if (!text) return;
         const lines = text.split("\n").map(l => l.trim()).filter(Boolean);
-        // For manual mode, we send raw ingredient strings and let the server parse them
-        // We'll build Recipe-shaped objects with raw ingredients for the compare endpoint
-        // Actually, parsing happens in the scraper, so for manual we need to call the parser on the server
-        recipes.push({
-          title,
-          source: "manual",
-          servings: "",
-          ingredients: lines,
-          _raw: true,
-        });
+        recipes.push({ title, source: "manual", servings: "", ingredients: lines, _raw: true });
       });
       return recipes;
     }
 
     function renderResults(data) {
       renderBakeTypeInfo(data);
-      renderRecipeCards(data.analyses);
-      renderComparisonTable(data);
-      renderRatioBars(data.analyses, data.ratioDescriptions);
-      renderConcepts(data.concepts);
       renderInsights(data.insights);
+      renderRecipeCards(data.analyses);
+      renderRatioBars(data.analyses, data.ratioDescriptions);
+      renderComparisonTable(data);
+      renderConcepts(data.concepts);
       document.getElementById("results").classList.remove("hidden");
     }
 
     function renderBakeTypeInfo(data) {
       const container = document.getElementById("bake-type-info");
       let html = `<div class="flex items-center gap-3 mb-2">
-        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 text-indigo-800">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-100">
           Comparing as: ${escHtml(data.bakeTypeLabel)}
         </span>
-        ${data.referenceRatio ? `<span class="text-xs text-gray-400">Reference: ${escHtml(data.referenceRatio.label)} (${escHtml(data.referenceRatio.source)})</span>` : ""}
+        ${data.referenceRatio ? `<span class="text-[11px] text-slate-400">Reference: ${escHtml(data.referenceRatio.label)} (${escHtml(data.referenceRatio.source)})</span>` : ""}
       </div>`;
       if (data.bakeTypeWarning) {
-        html += `<div id="bake-type-warning" class="flex items-center gap-3 p-3 mb-2 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800">
-          <span class="shrink-0 text-amber-500 text-lg">&#9888;</span>
+        html += `<div class="flex items-center gap-3 p-3 mb-2 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-800">
+          <span class="shrink-0 text-amber-500">&#9888;</span>
           <span class="flex-1">${escHtml(data.bakeTypeWarning)}</span>
-          <button onclick="this.parentElement.remove()" class="shrink-0 text-amber-400 hover:text-amber-600 text-lg">&times;</button>
+          <button onclick="this.parentElement.remove()" class="shrink-0 text-amber-300 hover:text-amber-600 text-lg">&times;</button>
         </div>`;
       }
       container.innerHTML = html;
     }
 
+    function renderInsights(insights) {
+      const container = document.getElementById("insights-content");
+      const sections = insights.split(/(?=^## )/m).filter(s => s.trim());
+      if (sections.length > 1) {
+        container.innerHTML = '<div style="display:grid;gap:12px;">' +
+          sections.map(section => '<div class="insight-card">' + marked.parse(section) + '</div>').join("") + '</div>';
+      } else {
+        container.innerHTML = marked.parse(insights);
+      }
+    }
+
     function renderConcepts(concepts) {
       const container = document.getElementById("concepts-container");
-      if (!concepts || concepts.length === 0) {
-        container.innerHTML = "";
-        return;
-      }
+      if (!concepts || concepts.length === 0) { container.innerHTML = ""; return; }
       const bgMap = {
-        indigo: { card: "bg-indigo-50", title: "text-indigo-900", text: "text-indigo-800", source: "text-indigo-600" },
-        amber: { card: "bg-amber-50", title: "text-amber-900", text: "text-amber-800", source: "text-amber-600" },
-        emerald: { card: "bg-emerald-50", title: "text-emerald-900", text: "text-emerald-800", source: "text-emerald-600" },
-        rose: { card: "bg-rose-50", title: "text-rose-900", text: "text-rose-800", source: "text-rose-600" },
+        indigo: { card: "bg-indigo-50/70 border-indigo-100", title: "text-indigo-900", text: "text-indigo-800", source: "text-indigo-500" },
+        amber: { card: "bg-amber-50/70 border-amber-100", title: "text-amber-900", text: "text-amber-800", source: "text-amber-500" },
+        emerald: { card: "bg-emerald-50/70 border-emerald-100", title: "text-emerald-900", text: "text-emerald-800", source: "text-emerald-500" },
+        rose: { card: "bg-rose-50/70 border-rose-100", title: "text-rose-900", text: "text-rose-800", source: "text-rose-500" },
       };
       container.innerHTML = `
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <h2 class="text-xl font-semibold text-gray-800 mb-3">Key Concepts</h2>
-          <div class="grid md:grid-cols-2 gap-4 text-sm">
+        <div class="card p-6">
+          <h2 class="text-lg font-semibold text-slate-800 mb-4">Key Concepts</h2>
+          <div class="grid md:grid-cols-2 gap-4">
             ${concepts.map(c => {
               const colors = bgMap[c.bg] || bgMap.indigo;
               const sourceHtml = c.source
                 ? (c.source.url
-                  ? `<p class="${colors.source} text-xs mt-2">Source: <a href="${escHtml(c.source.url)}" target="_blank" class="underline">${escHtml(c.source.label)}</a></p>`
-                  : `<p class="${colors.source} text-xs mt-2">Source: ${escHtml(c.source.label)}</p>`)
+                  ? `<p class="${colors.source} text-[11px] mt-2">Source: <a href="${escHtml(c.source.url)}" target="_blank" class="underline">${escHtml(c.source.label)}</a></p>`
+                  : `<p class="${colors.source} text-[11px] mt-2">Source: ${escHtml(c.source.label)}</p>`)
                 : "";
-              return `<div class="${colors.card} rounded-lg p-4">
-                <h3 class="font-semibold ${colors.title} mb-1">${escHtml(c.title)}</h3>
-                <p class="${colors.text} leading-relaxed">${c.text}</p>
+              return `<div class="${colors.card} border rounded-lg p-4">
+                <h3 class="font-semibold ${colors.title} text-sm mb-1">${escHtml(c.title)}</h3>
+                <p class="${colors.text} text-xs leading-relaxed">${c.text}</p>
                 ${sourceHtml}
               </div>`;
             }).join("")}
@@ -397,18 +422,15 @@
     function renderRecipeCards(analyses) {
       const container = document.getElementById("recipe-cards");
       const cols = analyses.length <= 2 ? "md:grid-cols-2" : analyses.length === 3 ? "md:grid-cols-3" : "md:grid-cols-2 lg:grid-cols-4";
-      container.className = `grid gap-4 ${cols}`;
+      container.className = `grid gap-6 ${cols}`;
 
-      // Category display order and labels
       const catOrder = ["flour", "fat", "sugar", "egg", "dairy", "liquid", "leavening", "flavoring", "other"];
       const catLabels = { flour: "Flour", fat: "Fats", sugar: "Sugars", egg: "Eggs", dairy: "Dairy", liquid: "Liquids", leavening: "Leavening", flavoring: "Flavoring", other: "Other" };
 
       container.innerHTML = analyses.map((a, i) => {
-        // Split ingredients into primary (analyzed) and excluded (frosting, etc.)
         const primaryIngs = a.recipe.ingredients.filter(ing => !ing.excludeFromAnalysis);
         const excludedIngs = a.recipe.ingredients.filter(ing => ing.excludeFromAnalysis);
 
-        // Group primary ingredients by category
         const grouped = {};
         for (const ing of primaryIngs) {
           const cat = ing.category || "other";
@@ -421,76 +443,76 @@
         let ingredientRows = "";
         for (const cat of catOrder) {
           if (!grouped[cat] || grouped[cat].length === 0) continue;
-          ingredientRows += `<tr><td colspan="3" class="pt-2 pb-0.5 text-xs font-bold text-gray-400 uppercase tracking-wide">${catLabels[cat]}</td></tr>`;
+          ingredientRows += `<tr><td colspan="3" class="pt-3 pb-0.5 text-[10px] font-semibold text-slate-400 uppercase tracking-wider">${catLabels[cat]}</td></tr>`;
           for (const ing of grouped[cat]) {
             const bp = a.totalFlourGrams > 0 && ing.grams ? ((ing.grams / a.totalFlourGrams) * 100).toFixed(1) : "—";
             ingredientRows += `
-              <tr class="border-b border-gray-50">
-                <td class="py-1 text-gray-700 capitalize text-sm">${escHtml(ing.name)}</td>
-                <td class="py-1 px-2 text-right text-sm font-mono tabular-nums text-gray-500">${ing.grams != null ? Math.round(ing.grams) + 'g' : '?'}</td>
-                <td class="py-1 px-2 text-right text-sm font-mono tabular-nums font-medium" style="color: ${COLORS[i]}">${bp}%</td>
+              <tr class="border-b border-slate-50">
+                <td class="py-1 text-slate-600 capitalize text-xs">${escHtml(ing.name)}</td>
+                <td class="py-1 px-2 text-right text-xs font-mono text-slate-400">${ing.grams != null ? Math.round(ing.grams) + 'g' : '?'}</td>
+                <td class="py-1 px-2 text-right text-xs font-mono font-medium" style="color: ${COLORS[i]}">${bp}%</td>
               </tr>`;
           }
         }
 
-        // Show excluded ingredients (frosting, etc.) dimmed
         if (excludedIngs.length > 0) {
           const sectionName = excludedIngs[0].section || "Excluded";
-          ingredientRows += `<tr><td colspan="3" class="pt-3 pb-0.5 text-xs font-bold text-gray-300 uppercase tracking-wide">${escHtml(sectionName)} (not analyzed)</td></tr>`;
+          ingredientRows += `<tr><td colspan="3" class="pt-3 pb-0.5 text-[10px] font-semibold text-slate-300 uppercase tracking-wider">${escHtml(sectionName)} (not analyzed)</td></tr>`;
           for (const ing of excludedIngs) {
             ingredientRows += `
-              <tr class="border-b border-gray-50 opacity-40">
-                <td class="py-1 text-gray-500 capitalize text-sm">${escHtml(ing.name)}</td>
-                <td class="py-1 px-2 text-right text-sm font-mono tabular-nums text-gray-400">${ing.grams != null ? Math.round(ing.grams) + 'g' : '?'}</td>
-                <td class="py-1 px-2 text-right text-sm font-mono tabular-nums text-gray-400">—</td>
+              <tr class="border-b border-slate-50 opacity-40">
+                <td class="py-1 text-slate-400 capitalize text-xs">${escHtml(ing.name)}</td>
+                <td class="py-1 px-2 text-right text-xs font-mono text-slate-300">${ing.grams != null ? Math.round(ing.grams) + 'g' : '?'}</td>
+                <td class="py-1 px-2 text-right text-xs font-mono text-slate-300">—</td>
               </tr>`;
           }
         }
 
         return `
-        <div class="bg-white rounded-xl shadow-sm border-2 p-5 fade-in" style="border-color: ${COLORS[i]}">
+        <div class="recipe-card p-6" style="--accent: ${COLORS[i]}">
           <div class="flex items-center gap-2 mb-1">
-            <div class="w-3 h-3 rounded-full shrink-0" style="background: ${COLORS[i]}"></div>
-            <h3 class="font-semibold text-gray-800 text-lg leading-tight">${escHtml(a.recipe.title)}</h3>
+            <div class="w-2.5 h-2.5 rounded-full shrink-0" style="background: ${COLORS[i]}"></div>
+            <h3 class="font-semibold text-slate-800 text-sm leading-tight">${escHtml(a.recipe.title)}</h3>
           </div>
-          ${a.recipe.source !== "manual" ? `<a href="${escHtml(a.recipe.source)}" target="_blank" class="text-xs text-indigo-500 hover:underline break-all block mb-2">${escHtml(new URL(a.recipe.source).hostname)}</a>` : '<span class="text-xs text-gray-400 block mb-2">Manual entry</span>'}
-          <div class="flex flex-wrap gap-1.5 mb-3">${(a.tags || []).map(t => `<span class="inline-block px-2 py-0.5 rounded-full text-xs font-medium" style="background:${t.bg};color:${t.color}">${escHtml(t.label)}</span>`).join("")}</div>
-          <div class="grid grid-cols-4 gap-1.5 text-sm">
-            <div class="bg-gray-50 rounded p-1.5 text-center">
-              <div class="text-gray-400 text-[10px]">Flour</div>
-              <div class="font-bold text-gray-800 text-sm">${Math.round(a.totalFlourGrams)}g</div>
+          ${a.recipe.source !== "manual" ? `<a href="${escHtml(a.recipe.source)}" target="_blank" class="text-[11px] text-indigo-500 hover:underline break-all block mb-3">${escHtml(new URL(a.recipe.source).hostname)}</a>` : '<span class="text-[11px] text-slate-400 block mb-3">Manual entry</span>'}
+          <div class="flex flex-wrap gap-1.5 mb-3">${(a.tags || []).map(t => `<span class="inline-block px-2 py-0.5 rounded-full text-[11px] font-medium" style="background:${t.bg};color:${t.color}">${escHtml(t.label)}</span>`).join("")}</div>
+          <div class="grid grid-cols-4 gap-2">
+            <div class="bg-slate-50 rounded-lg p-2 text-center border border-slate-100">
+              <div class="text-[10px] font-medium text-slate-400 uppercase tracking-wider">Flour</div>
+              <div class="font-bold text-slate-800 text-sm tabular-nums">${Math.round(a.totalFlourGrams)}g</div>
             </div>
-            <div class="bg-gray-50 rounded p-1.5 text-center">
-              <div class="text-gray-400 text-[10px]">Fat</div>
-              <div class="font-bold text-gray-800 text-sm">${(a.ratios.fatToFlour * 100).toFixed(0)}%</div>
+            <div class="bg-slate-50 rounded-lg p-2 text-center border border-slate-100">
+              <div class="text-[10px] font-medium text-slate-400 uppercase tracking-wider">Fat</div>
+              <div class="font-bold text-slate-800 text-sm tabular-nums">${(a.ratios.fatToFlour * 100).toFixed(0)}%</div>
             </div>
-            <div class="bg-gray-50 rounded p-1.5 text-center">
-              <div class="text-gray-400 text-[10px]">Sugar</div>
-              <div class="font-bold text-gray-800 text-sm">${(a.ratios.sugarToFlour * 100).toFixed(0)}%</div>
+            <div class="bg-slate-50 rounded-lg p-2 text-center border border-slate-100">
+              <div class="text-[10px] font-medium text-slate-400 uppercase tracking-wider">Sugar</div>
+              <div class="font-bold text-slate-800 text-sm tabular-nums">${(a.ratios.sugarToFlour * 100).toFixed(0)}%</div>
             </div>
-            <div class="bg-gray-50 rounded p-1.5 text-center">
-              <div class="text-gray-400 text-[10px]">Hydra.</div>
-              <div class="font-bold text-gray-800 text-sm">${(a.ratios.hydration * 100).toFixed(0)}%</div>
+            <div class="bg-slate-50 rounded-lg p-2 text-center border border-slate-100">
+              <div class="text-[10px] font-medium text-slate-400 uppercase tracking-wider">Hydra.</div>
+              <div class="font-bold text-slate-800 text-sm tabular-nums">${(a.ratios.hydration * 100).toFixed(0)}%</div>
             </div>
           </div>
-          <button onclick="toggleCardIngredients(this)" class="mt-2 text-xs text-gray-400 hover:text-indigo-600 w-full text-center py-1">
-            Show ${primaryIngs.length} ingredients &#9660;
+          <button onclick="toggleCardIngredients(this)" class="mt-3 flex items-center justify-center gap-1.5 text-[11px] text-slate-400 hover:text-indigo-600 w-full py-1.5 rounded-lg hover:bg-indigo-50/50 transition-colors font-medium">
+            <span>${primaryIngs.length} ingredients</span>
+            <span style="font-size:9px">&#9660;</span>
           </button>
           <div class="card-ingredients">
-            <table class="w-full">
-              <thead><tr class="border-b border-gray-200">
-                <th class="text-left text-xs text-gray-500 py-1">Ingredient</th>
-                <th class="text-right text-xs text-gray-500 py-1 px-2">Wt</th>
-                <th class="text-right text-xs text-gray-500 py-1 px-2">B%</th>
+            <table class="w-full mt-3">
+              <thead><tr class="border-b border-slate-200">
+                <th class="text-left text-[10px] text-slate-400 py-1 font-medium">Ingredient</th>
+                <th class="text-right text-[10px] text-slate-400 py-1 px-2 font-medium">Wt</th>
+                <th class="text-right text-[10px] text-slate-400 py-1 px-2 font-medium">B%</th>
               </tr></thead>
               <tbody>${ingredientRows}</tbody>
-              <tfoot><tr class="border-t border-gray-200">
-                <td class="py-1 font-semibold text-sm text-gray-800">Total</td>
-                <td class="py-1 px-2 text-right font-mono text-sm font-semibold text-gray-800">${Math.round(totalWeight)}g</td>
+              <tfoot><tr class="border-t border-slate-200">
+                <td class="py-1 font-semibold text-xs text-slate-700">Total</td>
+                <td class="py-1 px-2 text-right font-mono text-xs font-semibold text-slate-700">${Math.round(totalWeight)}g</td>
                 <td></td>
               </tr></tfoot>
             </table>
-            <div class="mt-2 text-center text-xs text-gray-400">
+            <div class="mt-3 text-center text-[11px] text-slate-400">
               Tenderizer ${a.tenderizerPct.toFixed(0)}% &middot; Toughener ${a.toughenerPct.toFixed(0)}%
             </div>
           </div>
@@ -502,19 +524,23 @@
       const { analyses, allIngredients, percentageMatrix, gramMatrix, groupLabels, groupCategories } = data;
       const table = document.getElementById("comparison-table");
 
+      // Set count badge
+      const countEl = document.getElementById("bp-count");
+      if (countEl) countEl.textContent = `${allIngredients.length} ingredients`;
+
       const catOrder = ["flour", "fat", "sugar", "egg", "dairy", "liquid", "leavening", "flavoring", "other"];
       const catLabels = { flour: "Flour", fat: "Fats", sugar: "Sugars", egg: "Eggs", dairy: "Dairy", liquid: "Liquids", leavening: "Leavening", flavoring: "Flavoring", other: "Other" };
 
       const colSpan = analyses.length * 2 + 1;
-      let html = `<thead><tr class="border-b-2 border-gray-200">
-        <th class="text-left py-2 pr-4 text-gray-600 font-semibold" rowspan="2">Ingredient</th>`;
+      let html = `<thead><tr class="border-b-2 border-slate-200">
+        <th class="text-left py-2 pr-4 text-slate-600 font-semibold text-xs" rowspan="2">Ingredient</th>`;
       for (let i = 0; i < analyses.length; i++) {
-        html += `<th colspan="2" class="text-center py-2 px-2 font-semibold" style="color: ${COLORS[i]}">${escHtml(analyses[i].recipe.title)}</th>`;
+        html += `<th colspan="2" class="text-center py-2 px-2 font-semibold text-xs" style="color: ${COLORS[i]}">${escHtml(analyses[i].recipe.title)}</th>`;
       }
-      html += `</tr><tr class="border-b border-gray-200">`;
+      html += `</tr><tr class="border-b border-slate-100">`;
       for (let i = 0; i < analyses.length; i++) {
-        html += `<th class="text-right py-1 px-2 text-xs text-gray-400 font-normal">grams</th>`;
-        html += `<th class="text-right py-1 px-2 text-xs text-gray-400 font-normal">B%</th>`;
+        html += `<th class="text-right py-1 px-2 text-[10px] text-slate-400 font-normal">grams</th>`;
+        html += `<th class="text-right py-1 px-2 text-[10px] text-slate-400 font-normal">B%</th>`;
       }
       html += `</tr></thead><tbody>`;
 
@@ -522,7 +548,7 @@
         const catIngredients = allIngredients.filter(n => (groupCategories?.[n] || "other") === cat);
         if (catIngredients.length === 0) continue;
 
-        html += `<tr><td colspan="${colSpan}" class="pt-4 pb-1 text-xs font-bold text-gray-400 uppercase tracking-wide">${catLabels[cat]}</td></tr>`;
+        html += `<tr><td colspan="${colSpan}" class="pt-4 pb-1 text-[10px] font-semibold text-slate-400 uppercase tracking-wider">${catLabels[cat]}</td></tr>`;
 
         for (const key of catIngredients) {
           const label = groupLabels?.[key] || key;
@@ -531,14 +557,14 @@
           const min = Math.min(...values.filter(v => v > 0));
           const hasDiff = max > 0 && min > 0 && (max - min) / min > 0.15;
 
-          html += `<tr class="border-b border-gray-100 hover:bg-gray-50">
-            <td class="py-1.5 pr-4 text-gray-700 capitalize">${escHtml(label)}</td>`;
+          html += `<tr class="border-b border-slate-50 hover:bg-slate-50/50">
+            <td class="py-1.5 pr-4 text-slate-600 capitalize text-xs">${escHtml(label)}</td>`;
           for (let i = 0; i < analyses.length; i++) {
             const val = values[i];
             const g = gramMatrix?.[key]?.[i];
             const isExtreme = hasDiff && val > 0 && (val === max || val === min);
-            html += `<td class="py-1.5 px-2 text-right font-mono tabular-nums text-gray-400 text-xs">${g != null ? Math.round(g) + 'g' : '—'}</td>`;
-            html += `<td class="py-1.5 px-2 text-right font-mono tabular-nums ${isExtreme ? "diff-high font-semibold" : ""}">${val > 0 ? val.toFixed(1) + "%" : "—"}</td>`;
+            html += `<td class="py-1.5 px-2 text-right font-mono text-slate-400 text-[11px]">${g != null ? Math.round(g) + 'g' : '—'}</td>`;
+            html += `<td class="py-1.5 px-2 text-right font-mono ${isExtreme ? "diff-high font-semibold" : ""} text-[13px]">${val > 0 ? val.toFixed(1) + "%" : "—"}</td>`;
           }
           html += `</tr>`;
         }
@@ -571,37 +597,27 @@
 
         return `
           <div>
-            <div class="flex justify-between items-baseline mb-1">
-              <span class="font-medium text-gray-700">${label}</span>
-              <span class="text-xs text-gray-400">${desc}</span>
+            <div class="flex justify-between items-baseline mb-1.5">
+              <span class="font-medium text-slate-700 text-sm">${label}</span>
+              <span class="text-[11px] text-slate-400">${desc}</span>
             </div>
-            ${analyses.map((a, i) => `
-              <div class="flex items-center gap-3 mb-1">
-                <span class="text-xs text-gray-500 w-32 truncate" title="${escHtml(a.recipe.title)}">${escHtml(a.recipe.title)}</span>
-                <div class="flex-1 bg-gray-100 rounded-full h-5 overflow-hidden">
-                  <div class="bar-fill h-full rounded-full flex items-center justify-end pr-2" style="width: ${(values[i] / maxVal * 100).toFixed(1)}%; background: ${COLORS[i]}">
-                    <span class="text-xs text-white font-semibold">${values[i].toFixed(0)}%</span>
+            ${analyses.map((a, i) => {
+              const pct = (values[i] / maxVal * 100).toFixed(1);
+              const labelInside = parseFloat(pct) > 18;
+              return `
+              <div class="flex items-center gap-3 mb-1.5">
+                <span class="text-[11px] text-slate-500 w-28 truncate font-medium" title="${escHtml(a.recipe.title)}">${escHtml(a.recipe.title)}</span>
+                <div class="flex-1 bg-slate-100 rounded-md h-6 overflow-hidden relative">
+                  <div class="bar-fill h-full flex items-center ${labelInside ? 'justify-end pr-2' : ''}" style="width: ${pct}%; background: ${COLORS[i]}">
+                    ${labelInside ? `<span class="text-[11px] text-white font-semibold">${values[i].toFixed(0)}%</span>` : ''}
                   </div>
+                  ${!labelInside ? `<span class="absolute top-1/2 -translate-y-1/2 text-[11px] font-semibold ml-1" style="left: ${pct}%; color: ${COLORS[i]}">${values[i].toFixed(0)}%</span>` : ''}
                 </div>
-              </div>
-            `).join("")}
+              </div>`;
+            }).join("")}
           </div>
         `;
       }).join("");
-    }
-
-    function renderInsights(insights) {
-      const container = document.getElementById("insights-content");
-      // Split markdown by ## headings into separate cards
-      const sections = insights.split(/(?=^## )/m).filter(s => s.trim());
-      if (sections.length > 1) {
-        container.innerHTML = '<div style="display:grid;gap:0.75rem;">' +
-          sections.map(section => {
-            return '<div class="insight-card">' + marked.parse(section) + '</div>';
-          }).join("") + '</div>';
-      } else {
-        container.innerHTML = marked.parse(insights);
-      }
     }
 
     function escHtml(str) {
@@ -627,9 +643,8 @@
       const isExpanded = container.classList.contains("expanded");
       container.classList.toggle("expanded");
       const count = btn.textContent.match(/\d+/)?.[0] || "";
-      btn.innerHTML = isExpanded
-        ? `Show ${count} ingredients &#9660;`
-        : `Hide ingredients &#9650;`;
+      btn.querySelector("span:first-child").textContent = isExpanded ? `${count} ingredients` : `Hide ingredients`;
+      btn.querySelector("span:last-child").innerHTML = isExpanded ? "&#9660;" : "&#9650;";
     }
 
     // --- History ---
@@ -688,19 +703,19 @@
       const history = getHistory();
       const list = document.getElementById("history-list");
       if (history.length === 0) {
-        list.innerHTML = '<p class="text-sm text-gray-400 text-center py-4">No past comparisons yet.</p>';
+        list.innerHTML = '<p class="text-xs text-slate-400 text-center py-4">No past comparisons yet.</p>';
         return;
       }
       list.innerHTML = history.map(h => {
         const date = new Date(h.timestamp);
         const timeStr = date.toLocaleDateString(undefined, { month: "short", day: "numeric" }) + " " + date.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
         const titles = h.titles.map(t => escHtml(t)).join(" vs ");
-        return `<div onclick="loadFromHistory('${h.id}')" class="flex items-center gap-3 p-3 rounded-lg border border-gray-100 hover:border-indigo-200 hover:bg-indigo-50 cursor-pointer transition-colors group">
+        return `<div onclick="loadFromHistory('${h.id}')" class="flex items-center gap-3 p-3 rounded-lg border border-slate-100 hover:border-indigo-200 hover:bg-indigo-50/50 cursor-pointer transition-colors group">
           <div class="flex-1 min-w-0">
-            <div class="text-sm font-medium text-gray-800 truncate">${titles}</div>
-            <div class="text-xs text-gray-400 mt-0.5">${escHtml(h.bakeTypeLabel)} &middot; ${timeStr}</div>
+            <div class="text-xs font-medium text-slate-700 truncate">${titles}</div>
+            <div class="text-[11px] text-slate-400 mt-0.5">${escHtml(h.bakeTypeLabel)} &middot; ${timeStr}</div>
           </div>
-          <button onclick="deleteFromHistory('${h.id}', event)" class="text-gray-300 hover:text-red-500 text-lg px-1 opacity-0 group-hover:opacity-100 transition-opacity">&times;</button>
+          <button onclick="deleteFromHistory('${h.id}', event)" class="text-slate-300 hover:text-red-500 text-lg px-1 opacity-0 group-hover:opacity-100 transition-opacity">&times;</button>
         </div>`;
       }).join("");
     }
@@ -716,26 +731,21 @@
         toggle.classList.add("hidden");
         document.getElementById("history-section").classList.add("hidden");
       }
-      // Re-render if history panel is visible
       if (!document.getElementById("history-section").classList.contains("hidden")) {
         renderHistory();
       }
     }
 
-    // Init history UI on load
     refreshHistoryUI();
 
-    // URL param support: ?r=url1&r=url2&r=url3 (up to 4)
-    // Also supports ?auto=1 to auto-compare on load
+    // URL param support
     (function loadFromUrlParams() {
       const params = new URLSearchParams(window.location.search);
       const urls = params.getAll("r").filter(Boolean);
       if (urls.length === 0) return;
 
-      // Ensure we're in URL mode
       if (!isUrlMode) toggleMode();
 
-      // Fill existing inputs and add more if needed
       const existingInputs = document.querySelectorAll(".url-input");
       for (let i = 0; i < urls.length && i < 4; i++) {
         if (i < existingInputs.length) {
@@ -747,7 +757,6 @@
         }
       }
 
-      // Auto-compare if ?auto=1
       if (params.get("auto") === "1" && urls.length >= 2) {
         compare();
       }
