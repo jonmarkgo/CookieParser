@@ -177,19 +177,39 @@
       <!-- Bake Type Badge + Warning -->
       <div id="bake-type-info"></div>
 
-      <!-- AI Analysis -->
-      <div id="insights-section" class="card p-6">
-        <h2 class="text-lg font-semibold text-slate-800 mb-4">Analysis</h2>
-        <div id="insights-content" class="md-content"></div>
+      <!-- Headline + Recipe Summary -->
+      <div id="headline-section" class="hidden">
+        <p id="headline-text" class="text-lg font-medium text-slate-700 leading-relaxed text-center"></p>
       </div>
 
-      <!-- Recipe Cards -->
+      <!-- Recipe Cards (compact: title + character + tags) -->
       <div id="recipe-cards" class="grid gap-6"></div>
+
+      <!-- AI Analysis (detailed) -->
+      <div id="insights-section" class="card p-6">
+        <div class="section-toggle" onclick="toggleSection(this)">
+          <h2 class="text-lg font-semibold text-slate-800 flex items-center justify-between">
+            <span>Detailed Analysis</span>
+            <span class="chevron">&#9660;</span>
+          </h2>
+        </div>
+        <div class="section-body mt-4">
+          <div id="insights-content" class="md-content"></div>
+        </div>
+      </div>
 
       <!-- Key Ratios -->
       <div class="card p-6">
-        <h2 class="text-lg font-semibold text-slate-800 mb-4">Key Ratios</h2>
-        <div id="ratio-bars" class="space-y-6"></div>
+        <div class="section-toggle" onclick="toggleSection(this)">
+          <h2 class="text-lg font-semibold text-slate-800 flex items-center justify-between">
+            <span>Key Ratios</span>
+            <span class="chevron">&#9660;</span>
+          </h2>
+          <p class="text-xs text-slate-400 mt-1">Visual comparison of fat, sugar, hydration, and egg ratios</p>
+        </div>
+        <div class="section-body mt-4">
+          <div id="ratio-bars" class="space-y-6"></div>
+        </div>
       </div>
 
       <!-- Baker's Percentages (collapsed) -->
@@ -199,10 +219,10 @@
             <span>Baker's Percentages <span id="bp-count" class="text-xs font-medium text-slate-400 bg-slate-100 rounded-full px-2 py-0.5 ml-2"></span></span>
             <span class="chevron">&#9660;</span>
           </h2>
-          <p class="text-xs text-slate-400 mt-1">Full ingredient-by-ingredient comparison across all recipes</p>
+          <p class="text-xs text-slate-400 mt-1">Full ingredient-by-ingredient breakdown across all recipes</p>
         </div>
         <div class="section-body collapsed mt-4">
-          <p class="text-xs text-slate-400 mb-4">All values as % of total flour weight (flour = 100%). <span class="inline-block px-1.5 py-0.5 rounded text-[10px] font-medium" style="background:#fef9c3;">Highlighted</span> = biggest differences (&gt;15%).</p>
+          <p class="text-xs text-slate-400 mb-4">All values as % of total flour (flour = 100%). <span class="inline-block px-1.5 py-0.5 rounded text-[10px] font-medium" style="background:#fef9c3;">Highlighted</span> = biggest differences (&gt;15%).</p>
           <div class="overflow-x-auto">
             <table id="comparison-table" class="w-full text-[13px]"></table>
           </div>
@@ -352,12 +372,23 @@
 
     function renderResults(data) {
       renderBakeTypeInfo(data);
+      renderHeadline(data);
+      renderRecipeCards(data.analyses, data.recipeDescriptions);
       renderInsights(data.insights);
-      renderRecipeCards(data.analyses);
       renderRatioBars(data.analyses, data.ratioDescriptions);
       renderComparisonTable(data);
       renderConcepts(data.concepts);
       document.getElementById("results").classList.remove("hidden");
+    }
+
+    function renderHeadline(data) {
+      const el = document.getElementById("headline-text");
+      if (data.headline) {
+        el.textContent = data.headline;
+        el.parentElement.classList.remove("hidden");
+      } else {
+        el.parentElement.classList.add("hidden");
+      }
     }
 
     function renderBakeTypeInfo(data) {
@@ -382,7 +413,7 @@
       const container = document.getElementById("insights-content");
       const sections = insights.split(/(?=^## )/m).filter(s => s.trim());
       if (sections.length > 1) {
-        container.innerHTML = '<div style="display:grid;gap:12px;">' +
+        container.innerHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;">' +
           sections.map(section => '<div class="insight-card">' + marked.parse(section) + '</div>').join("") + '</div>';
       } else {
         container.innerHTML = marked.parse(insights);
@@ -419,13 +450,21 @@
         </div>`;
     }
 
-    function renderRecipeCards(analyses) {
+    function renderRecipeCards(analyses, recipeDescriptions) {
       const container = document.getElementById("recipe-cards");
       const cols = analyses.length <= 2 ? "md:grid-cols-2" : analyses.length === 3 ? "md:grid-cols-3" : "md:grid-cols-2 lg:grid-cols-4";
       container.className = `grid gap-6 ${cols}`;
 
       const catOrder = ["flour", "fat", "sugar", "egg", "dairy", "liquid", "leavening", "flavoring", "other"];
       const catLabels = { flour: "Flour", fat: "Fats", sugar: "Sugars", egg: "Eggs", dairy: "Dairy", liquid: "Liquids", leavening: "Leavening", flavoring: "Flavoring", other: "Other" };
+
+      // Build a map of recipe title -> character description
+      const descMap = {};
+      if (recipeDescriptions) {
+        for (const rd of recipeDescriptions) {
+          descMap[rd.title] = rd.character;
+        }
+      }
 
       container.innerHTML = analyses.map((a, i) => {
         const primaryIngs = a.recipe.ingredients.filter(ing => !ing.excludeFromAnalysis);
@@ -468,34 +507,20 @@
           }
         }
 
+        const character = descMap[a.recipe.title] || "";
+        const tags = (a.tags || []).slice(0, 3);
+
         return `
         <div class="recipe-card p-6" style="--accent: ${COLORS[i]}">
           <div class="flex items-center gap-2 mb-1">
             <div class="w-2.5 h-2.5 rounded-full shrink-0" style="background: ${COLORS[i]}"></div>
             <h3 class="font-semibold text-slate-800 text-sm leading-tight">${escHtml(a.recipe.title)}</h3>
           </div>
-          ${a.recipe.source !== "manual" ? `<a href="${escHtml(a.recipe.source)}" target="_blank" class="text-[11px] text-indigo-500 hover:underline break-all block mb-3">${escHtml(new URL(a.recipe.source).hostname)}</a>` : '<span class="text-[11px] text-slate-400 block mb-3">Manual entry</span>'}
-          <div class="flex flex-wrap gap-1.5 mb-3">${(a.tags || []).map(t => `<span class="inline-block px-2 py-0.5 rounded-full text-[11px] font-medium" style="background:${t.bg};color:${t.color}">${escHtml(t.label)}</span>`).join("")}</div>
-          <div class="grid grid-cols-4 gap-2">
-            <div class="bg-slate-50 rounded-lg p-2 text-center border border-slate-100">
-              <div class="text-[10px] font-medium text-slate-400 uppercase tracking-wider">Flour</div>
-              <div class="font-bold text-slate-800 text-sm tabular-nums">${Math.round(a.totalFlourGrams)}g</div>
-            </div>
-            <div class="bg-slate-50 rounded-lg p-2 text-center border border-slate-100">
-              <div class="text-[10px] font-medium text-slate-400 uppercase tracking-wider">Fat</div>
-              <div class="font-bold text-slate-800 text-sm tabular-nums">${(a.ratios.fatToFlour * 100).toFixed(0)}%</div>
-            </div>
-            <div class="bg-slate-50 rounded-lg p-2 text-center border border-slate-100">
-              <div class="text-[10px] font-medium text-slate-400 uppercase tracking-wider">Sugar</div>
-              <div class="font-bold text-slate-800 text-sm tabular-nums">${(a.ratios.sugarToFlour * 100).toFixed(0)}%</div>
-            </div>
-            <div class="bg-slate-50 rounded-lg p-2 text-center border border-slate-100">
-              <div class="text-[10px] font-medium text-slate-400 uppercase tracking-wider">Hydra.</div>
-              <div class="font-bold text-slate-800 text-sm tabular-nums">${(a.ratios.hydration * 100).toFixed(0)}%</div>
-            </div>
-          </div>
-          <button onclick="toggleCardIngredients(this)" class="mt-3 flex items-center justify-center gap-1.5 text-[11px] text-slate-400 hover:text-indigo-600 w-full py-1.5 rounded-lg hover:bg-indigo-50/50 transition-colors font-medium">
-            <span>${primaryIngs.length} ingredients</span>
+          ${a.recipe.source !== "manual" ? `<a href="${escHtml(a.recipe.source)}" target="_blank" class="text-[11px] text-indigo-500 hover:underline break-all block mb-2">${escHtml(new URL(a.recipe.source).hostname)}</a>` : '<span class="text-[11px] text-slate-400 block mb-2">Manual entry</span>'}
+          ${character ? `<p class="text-[13px] text-slate-500 leading-snug mb-3 italic">${escHtml(character)}</p>` : ""}
+          <div class="flex flex-wrap gap-1.5 mb-3">${tags.map(t => `<span class="inline-block px-2 py-0.5 rounded-full text-[11px] font-medium" style="background:${t.bg};color:${t.color}">${escHtml(t.label)}</span>`).join("")}</div>
+          <button onclick="toggleCardIngredients(this)" class="flex items-center justify-center gap-1.5 text-[11px] text-slate-400 hover:text-indigo-600 w-full py-1.5 rounded-lg hover:bg-indigo-50/50 transition-colors font-medium">
+            <span>${primaryIngs.length} ingredients &middot; ${Math.round(totalWeight)}g total</span>
             <span style="font-size:9px">&#9660;</span>
           </button>
           <div class="card-ingredients">

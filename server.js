@@ -124,9 +124,9 @@ app.post("/api/compare", async (c) => {
       aiGenerateConcepts(analyses, bakeType),
     ]);
 
-    const insights = insightsResult.status === "fulfilled"
+    const comparisonResult = insightsResult.status === "fulfilled"
       ? insightsResult.value
-      : "AI analysis unavailable: " + insightsResult.reason?.message;
+      : { headline: "", recipeDescriptions: [], analysis: "AI analysis unavailable: " + insightsResult.reason?.message };
 
     const concepts = conceptsResult.status === "fulfilled"
       ? conceptsResult.value
@@ -134,7 +134,9 @@ app.post("/api/compare", async (c) => {
 
     return c.json({
       ...comparison,
-      insights,
+      headline: comparisonResult.headline,
+      recipeDescriptions: comparisonResult.recipeDescriptions,
+      insights: comparisonResult.analysis,
       bakeType,
       bakeTypeLabel: profile.label,
       bakeTypeWarning,

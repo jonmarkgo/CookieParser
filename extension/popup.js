@@ -4,7 +4,10 @@ const MAX_RECIPES = 4;
 let recipes = [];
 let appUrl = "https://baking-app.exe.xyz";
 
-// Load saved state
+// Render immediately with defaults so popup isn't blank
+render();
+
+// Then hydrate from storage
 chrome.storage.local.get(["recipes", "appUrl"], (data) => {
   recipes = data.recipes || [];
   appUrl = data.appUrl || "https://baking-app.exe.xyz";
