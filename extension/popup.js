@@ -47,6 +47,11 @@ document.getElementById("clear-btn").addEventListener("click", () => {
   render();
 });
 
+// Toggle settings
+document.getElementById("gear-btn").addEventListener("click", () => {
+  document.querySelector(".settings").classList.toggle("open");
+});
+
 // Save app URL on change
 document.getElementById("app-url").addEventListener("change", (e) => {
   appUrl = e.target.value.trim().replace(/\/+$/, "");
