@@ -139,6 +139,7 @@ app.post("/api/compare", async (c) => {
       insights: comparisonResult.analysis,
       bakeType,
       bakeTypeLabel: profile.label,
+      bakeTypeIcon: profile.icon,
       bakeTypeWarning,
       referenceRatio: profile.referenceRatio,
       concepts,
