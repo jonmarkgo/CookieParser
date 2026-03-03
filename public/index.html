@@ -316,13 +316,11 @@
 
     <!-- Results Section -->
     <section id="results" class="hidden space-y-8">
-      <!-- Headline + Recipe Summary -->
-      <div id="headline-section" class="hidden">
-        <p id="headline-text" class="text-lg font-medium text-slate-700 leading-relaxed text-center"></p>
+      <!-- Headline + Bake Type (combined) -->
+      <div id="headline-section" class="hidden text-center mb-2">
+        <p id="headline-text" class="text-lg font-medium text-slate-700 leading-relaxed"></p>
+        <div id="bake-type-info" class="mt-2"></div>
       </div>
-
-      <!-- Bake Type Badge + Warning -->
-      <div id="bake-type-info"></div>
 
       <!-- AI Analysis (detailed) -->
       <div id="insights-section" class="card p-6">
@@ -520,6 +518,7 @@
       renderRatioBars(data.analyses, data.ratioDescriptions);
       renderComparisonTable(data);
       renderConcepts(data.concepts);
+      document.getElementById("headline-section").classList.remove("hidden");
       document.getElementById("results").classList.remove("hidden");
       restoreSectionStates();
       launchConfetti();
@@ -552,15 +551,14 @@
       const el = document.getElementById("headline-text");
       if (data.headline) {
         el.textContent = data.headline;
-        el.parentElement.classList.remove("hidden");
       } else {
-        el.parentElement.classList.add("hidden");
+        el.textContent = "";
       }
     }
 
     function renderBakeTypeInfo(data) {
       const container = document.getElementById("bake-type-info");
-      let html = `<div class="flex items-center gap-3 mb-2">
+      let html = `<div class="flex items-center justify-center gap-3 mb-2">
         <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-100">
           <span class="text-sm">${data.bakeTypeIcon || ""}</span> Comparing as: ${escHtml(data.bakeTypeLabel)}
         </span>
@@ -1015,7 +1013,6 @@
       const el = document.getElementById("headline-text");
       if (data.headline && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
         el.textContent = "";
-        el.parentElement.classList.remove("hidden");
         el.classList.add("typing-cursor");
         const chars = data.headline.split("");
         let i = 0;
