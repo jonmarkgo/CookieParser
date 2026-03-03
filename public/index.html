@@ -659,14 +659,14 @@
 
       <!-- Key Ratios -->
       <div class="card p-6">
-        <div class="section-toggle" onclick="toggleSection(this)">
+        <div class="section-toggle collapsed" onclick="toggleSection(this)">
           <h2 class="text-lg font-semibold text-slate-800 flex items-center justify-between">
-            <span>Key Ratios</span>
+            <span>Key Ratios <span class="text-xs font-medium text-slate-400 bg-slate-100 rounded-full px-2 py-0.5 ml-2">4 ratios</span></span>
             <span class="chevron">&#9660;</span>
           </h2>
           <p class="text-xs text-slate-400 mt-1">Visual comparison of fat, sugar, hydration, and egg ratios</p>
         </div>
-        <div class="section-body mt-4">
+        <div class="section-body collapsed mt-4">
           <div id="ratio-bars" class="space-y-6"></div>
         </div>
       </div>
@@ -914,21 +914,28 @@
       };
       container.innerHTML = `
         <div class="card p-6">
-          <h2 class="text-lg font-semibold text-slate-800 mb-4">Key Concepts</h2>
-          <div class="grid md:grid-cols-2 gap-4">
-            ${concepts.map(c => {
-              const colors = bgMap[c.bg] || bgMap.indigo;
-              const sourceHtml = c.source
-                ? (c.source.url
-                  ? `<p class="${colors.source} text-[11px] mt-2">Source: <a href="${escHtml(c.source.url)}" target="_blank" class="underline">${escHtml(c.source.label)}</a></p>`
-                  : `<p class="${colors.source} text-[11px] mt-2">Source: ${escHtml(c.source.label)}</p>`)
-                : "";
-              return `<div class="${colors.card} border rounded-lg p-4">
-                <h3 class="font-semibold ${colors.title} text-sm mb-1">${escHtml(c.title)}</h3>
-                <p class="${colors.text} text-xs leading-relaxed">${c.text}</p>
-                ${sourceHtml}
-              </div>`;
-            }).join("")}
+          <div class="section-toggle collapsed" onclick="toggleSection(this)">
+            <h2 class="text-lg font-semibold text-slate-800 flex items-center justify-between">
+              <span>Key Concepts <span class="text-xs font-medium text-slate-400 bg-slate-100 rounded-full px-2 py-0.5 ml-2">${concepts.length} concepts</span></span>
+              <span class="chevron">&#9660;</span>
+            </h2>
+          </div>
+          <div class="section-body collapsed mt-4">
+            <div class="grid md:grid-cols-2 gap-4">
+              ${concepts.map(c => {
+                const colors = bgMap[c.bg] || bgMap.indigo;
+                const sourceHtml = c.source
+                  ? (c.source.url
+                    ? `<p class="${colors.source} text-[11px] mt-2">Source: <a href="${escHtml(c.source.url)}" target="_blank" class="underline">${escHtml(c.source.label)}</a></p>`
+                    : `<p class="${colors.source} text-[11px] mt-2">Source: ${escHtml(c.source.label)}</p>`)
+                  : "";
+                return `<div class="${colors.card} border rounded-lg p-4">
+                  <h3 class="font-semibold ${colors.title} text-sm mb-1">${escHtml(c.title)}</h3>
+                  <p class="${colors.text} text-xs leading-relaxed">${c.text}</p>
+                  ${sourceHtml}
+                </div>`;
+              }).join("")}
+            </div>
           </div>
         </div>`;
     }
