@@ -520,6 +520,7 @@
       renderComparisonTable(data);
       renderConcepts(data.concepts);
       document.getElementById("results").classList.remove("hidden");
+      restoreSectionStates();
       launchConfetti();
     }
 
@@ -855,6 +856,27 @@
         body.style.maxHeight = body.scrollHeight + "px";
         requestAnimationFrame(() => body.classList.add("collapsed"));
       }
+      const sectionId = el.closest('.card')?.querySelector('[id]')?.id
+        || el.querySelector('h2 span')?.textContent?.trim();
+      if (sectionId) {
+        const states = JSON.parse(localStorage.getItem('cookieparser_sections') || '{}');
+        states[sectionId] = el.classList.contains('collapsed');
+        localStorage.setItem('cookieparser_sections', JSON.stringify(states));
+      }
+    }
+
+    function restoreSectionStates() {
+      const states = JSON.parse(localStorage.getItem('cookieparser_sections') || '{}');
+      document.querySelectorAll('.section-toggle').forEach(toggle => {
+        const sectionId = toggle.closest('.card')?.querySelector('[id]')?.id
+          || toggle.querySelector('h2 span')?.textContent?.trim();
+        if (sectionId && states[sectionId] !== undefined) {
+          const isCollapsed = states[sectionId];
+          const body = toggle.nextElementSibling;
+          toggle.classList.toggle('collapsed', isCollapsed);
+          body.classList.toggle('collapsed', isCollapsed);
+        }
+      });
     }
 
     function toggleCardIngredients(btn) {
