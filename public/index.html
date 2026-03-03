@@ -46,8 +46,90 @@
     .insight-card:nth-child(5) { border-left-color: #8b5cf6; } .insight-card:nth-child(5) h2 { color: #7c3aed; }
     .insight-card:nth-child(6) { border-left-color: #06b6d4; } .insight-card:nth-child(6) h2 { color: #0891b2; }
 
-    .spinner { border: 3px solid #e5e7eb; border-top: 3px solid #6366f1; border-radius: 50%; width: 20px; height: 20px; animation: spin 0.8s linear infinite; display: inline-block; }
-    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner {
+      width: 24px;
+      height: 24px;
+      display: inline-block;
+      animation: cookie-spin 1.2s linear infinite;
+      background: radial-gradient(circle at 30% 30%, #5c3b2e 10%, transparent 11%),
+                  radial-gradient(circle at 70% 40%, #5c3b2e 10%, transparent 11%),
+                  radial-gradient(circle at 50% 70%, #5c3b2e 10%, transparent 11%),
+                  #d39a5c;
+      border-radius: 50%;
+      box-shadow: inset -2px -2px 0 rgba(0,0,0,0.1);
+    }
+
+    /* Confetti */
+    .confetti { position: fixed; width: 10px; height: 10px; top: -10px; opacity: 0; pointer-events: none; z-index: 1000; animation: confetti-fall 3s ease-out forwards; }
+    @keyframes confetti-fall { 0% { opacity: 1; transform: translateY(0) rotate(0deg); } 100% { opacity: 0; transform: translateY(100vh) rotate(720deg); } }
+
+    /* Cookie fun */
+    .cookie-badge {
+      position: absolute;
+      right: 12px;
+      top: 8px;
+      width: 42px;
+      height: 42px;
+      border: 0;
+      border-radius: 999px;
+      cursor: pointer;
+      box-shadow: 0 8px 18px -12px rgba(15, 23, 42, 0.45);
+      background:
+        radial-gradient(circle at 22% 28%, #5c3b2e 8%, transparent 9%),
+        radial-gradient(circle at 72% 25%, #5c3b2e 8%, transparent 9%),
+        radial-gradient(circle at 64% 62%, #5c3b2e 7%, transparent 8%),
+        radial-gradient(circle at 35% 68%, #5c3b2e 6%, transparent 7%),
+        #d39a5c;
+      animation: cookie-float 2.8s ease-in-out infinite;
+      transition: transform 0.15s ease;
+    }
+    .cookie-badge:hover { transform: scale(1.08); }
+    .cookie-badge:active { transform: scale(0.96); }
+    .cookie-badge::after {
+      content: "";
+      position: absolute;
+      inset: 4px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.35);
+    }
+    .cookie-crumb {
+      position: fixed;
+      z-index: 1001;
+      width: 9px;
+      height: 9px;
+      border-radius: 999px;
+      background: #d39a5c;
+      pointer-events: none;
+      animation: crumb-pop 850ms cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+    }
+    @keyframes cookie-float {
+      0%, 100% { transform: translateY(0) rotate(-3deg); }
+      50% { transform: translateY(-5px) rotate(3deg); }
+    }
+    @keyframes cookie-spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    @keyframes crumb-pop {
+      0% { opacity: 0.95; transform: translate(0, 0) scale(1); }
+      100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scale(0.3) rotate(var(--rot)); }
+    }
+    .cookie-friend {
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .cookie-friend:hover {
+      transform: scale(1.2) rotate(10deg);
+      cursor: pointer;
+    }
+    .cookie-friend-container {
+      position: absolute;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.6;
+    }
+    .cookie-friend-container > * {
+      pointer-events: auto;
+    }
 
     /* Collapsible */
     .section-toggle { cursor: pointer; user-select: none; }
@@ -78,18 +160,395 @@
 
     /* Focus */
     input:focus, textarea:focus, select:focus { border-color: #a5b4fc !important; box-shadow: 0 0 0 3px rgba(99,102,241,0.1) !important; outline: none; }
+
+    /* === FUN ANIMATIONS === */
+
+    /* Bouncy title entrance */
+    .bounce-letter {
+      display: inline-block;
+      animation: bounce-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    }
+    @keyframes bounce-in {
+      0% { opacity: 0; transform: translateY(-40px) scale(0.3) rotate(-10deg); }
+      50% { opacity: 1; transform: translateY(8px) scale(1.1) rotate(3deg); }
+      70% { transform: translateY(-4px) scale(0.95) rotate(-1deg); }
+      100% { opacity: 1; transform: translateY(0) scale(1) rotate(0deg); }
+    }
+
+    /* Floating cookie emojis background */
+    .floating-cookie {
+      position: fixed;
+      z-index: -1;
+      pointer-events: none;
+      font-size: 24px;
+      opacity: 0;
+      animation: float-around 12s ease-in-out infinite;
+    }
+    @keyframes float-around {
+      0% { opacity: 0; transform: translateY(100vh) rotate(0deg) scale(0.5); }
+      10% { opacity: 0.25; }
+      50% { opacity: 0.15; transform: translateY(40vh) rotate(180deg) scale(1); }
+      90% { opacity: 0.25; }
+      100% { opacity: 0; transform: translateY(-10vh) rotate(360deg) scale(0.5); }
+    }
+
+    /* Sparkle cursor trail */
+    .sparkle {
+      position: fixed;
+      pointer-events: none;
+      z-index: 9999;
+      font-size: 12px;
+      animation: sparkle-fade 0.8s ease-out forwards;
+    }
+    @keyframes sparkle-fade {
+      0% { opacity: 1; transform: scale(1) rotate(0deg) translateY(0); }
+      100% { opacity: 0; transform: scale(0) rotate(180deg) translateY(-20px); }
+    }
+
+    /* Wiggle on card hover */
+    .recipe-card {
+      transition: transform 0.15s ease, box-shadow 0.2s ease;
+    }
+    .recipe-card:hover {
+      animation: jelly 0.5s ease;
+    }
+    @keyframes jelly {
+      0% { transform: scale(1, 1); }
+      15% { transform: scale(1.03, 0.97); }
+      30% { transform: scale(0.98, 1.02); }
+      45% { transform: scale(1.01, 0.99); }
+      60% { transform: scale(0.99, 1.01); }
+      75% { transform: scale(1.005, 0.995); }
+      100% { transform: scale(1, 1); }
+    }
+
+    /* Button ripple */
+    .ripple-container { position: relative; overflow: hidden; }
+    .ripple {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.4);
+      transform: scale(0);
+      animation: ripple-expand 0.6s ease-out forwards;
+      pointer-events: none;
+    }
+    @keyframes ripple-expand {
+      to { transform: scale(4); opacity: 0; }
+    }
+
+    /* Pulse glow on compare button */
+    #compare-btn:not(:disabled) {
+      animation: pulse-glow 2s ease-in-out infinite;
+    }
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 1px 2px rgba(99,102,241,0.3), 0 4px 12px rgba(99,102,241,0.15); }
+      50% { box-shadow: 0 1px 2px rgba(99,102,241,0.4), 0 8px 30px rgba(99,102,241,0.35), 0 0 40px rgba(99,102,241,0.1); }
+    }
+
+    /* Cookie emoji confetti */
+    .cookie-confetti {
+      position: fixed;
+      z-index: 1001;
+      pointer-events: none;
+      font-size: 28px;
+      animation: cookie-confetti-fall 2.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    }
+    @keyframes cookie-confetti-fall {
+      0% { opacity: 1; transform: translateY(-20px) rotate(0deg) scale(0.3); }
+      20% { opacity: 1; transform: translateY(10vh) rotate(72deg) scale(1.2); }
+      100% { opacity: 0; transform: translateY(100vh) rotate(720deg) scale(0.5); }
+    }
+
+    /* Insight card entrance */
+    .insight-card {
+      opacity: 0;
+      animation: card-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+    .insight-card:nth-child(1) { animation-delay: 0.1s; }
+    .insight-card:nth-child(2) { animation-delay: 0.2s; }
+    .insight-card:nth-child(3) { animation-delay: 0.3s; }
+    .insight-card:nth-child(4) { animation-delay: 0.4s; }
+    .insight-card:nth-child(5) { animation-delay: 0.5s; }
+    .insight-card:nth-child(6) { animation-delay: 0.6s; }
+    @keyframes card-pop {
+      0% { opacity: 0; transform: scale(0.8) translateY(20px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    /* Bar fill bounce */
+    .bar-fill {
+      animation: bar-grow 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    }
+    @keyframes bar-grow {
+      0% { max-width: 0; }
+      100% { max-width: 100%; }
+    }
+
+    /* Cookie friends dance */
+    .cookie-friend-container:hover .cookie-friend {
+      animation: cookie-dance 0.6s ease-in-out;
+    }
+    @keyframes cookie-dance {
+      0%, 100% { transform: rotate(0deg) scale(1.2); }
+      20% { transform: rotate(-15deg) scale(1.3); }
+      40% { transform: rotate(15deg) scale(1.25); }
+      60% { transform: rotate(-10deg) scale(1.3); }
+      80% { transform: rotate(10deg) scale(1.25); }
+    }
+
+    /* Section reveal */
+    .section-body:not(.collapsed) {
+      animation: section-reveal 0.4s ease-out;
+    }
+    @keyframes section-reveal {
+      0% { opacity: 0; transform: translateY(-10px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Headline typing cursor */
+    .typing-cursor::after {
+      content: '|';
+      animation: blink-cursor 0.7s step-end infinite;
+      color: #6366f1;
+      font-weight: 300;
+    }
+    @keyframes blink-cursor {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+
+    /* History card slide in */
+    #history-list > div {
+      animation: slide-in-left 0.3s ease-out both;
+    }
+    #history-list > div:nth-child(1) { animation-delay: 0ms; }
+    #history-list > div:nth-child(2) { animation-delay: 50ms; }
+    #history-list > div:nth-child(3) { animation-delay: 100ms; }
+    #history-list > div:nth-child(4) { animation-delay: 150ms; }
+    #history-list > div:nth-child(5) { animation-delay: 200ms; }
+    @keyframes slide-in-left {
+      0% { opacity: 0; transform: translateX(-20px); }
+      100% { opacity: 1; transform: translateX(0); }
+    }
+
+    /* Tooltip bounce on bake type badge */
+    #bake-type-info .inline-flex {
+      animation: badge-bounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    @keyframes badge-bounce {
+      0% { transform: scale(0); }
+      60% { transform: scale(1.15); }
+      100% { transform: scale(1); }
+    }
+
+    /* Fun hover on inputs */
+    input:hover, textarea:hover, select:hover {
+      border-color: #c7d2fe !important;
+      transition: border-color 0.2s ease;
+    }
+
+    /* === NEW BAKING THEMED ANIMATIONS === */
+    
+    /* Floating ingredients background */
+    .floating-ingredient {
+      position: fixed;
+      z-index: -1;
+      pointer-events: none;
+      font-size: 32px;
+      opacity: 0;
+      animation: ingredient-float 15s ease-in-out infinite;
+    }
+    @keyframes ingredient-float {
+      0% { opacity: 0; transform: translate(0, 100vh) rotate(0deg); }
+      5% { opacity: 0.2; }
+      50% { opacity: 0.15; transform: translate(var(--drift-x), 20vh) rotate(180deg); }
+      95% { opacity: 0.2; }
+      100% { opacity: 0; transform: translate(calc(var(--drift-x) * 1.5), -10vh) rotate(360deg); }
+    }
+    
+    /* Ingredient rain celebration */
+    .ingredient-rain {
+      position: fixed;
+      z-index: 999;
+      pointer-events: none;
+      font-size: 24px;
+      opacity: 1;
+      animation: rain-fall 2s ease-out forwards;
+    }
+    @keyframes rain-fall {
+      0% { opacity: 1; transform: translateY(-30px) rotate(0deg) scale(0.5); }
+      10% { opacity: 1; }
+      100% { opacity: 0; transform: translateY(100vh) rotate(var(--rain-rot, 360deg)) scale(1); }
+    }
+    
+    /* Mixing bowl spinner */
+    .mixing-bowl {
+      display: inline-block;
+      animation: mix-spin 2s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+    }
+    @keyframes mix-spin {
+      0%, 100% { transform: rotate(0deg) scale(1); }
+      25% { transform: rotate(-15deg) scale(1.05); }
+      50% { transform: rotate(15deg) scale(0.95); }
+      75% { transform: rotate(-10deg) scale(1.05); }
+    }
+    
+    /* Oven heat waves during loading */
+    .heat-wave {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 200px;
+      background: linear-gradient(to top, rgba(251, 146, 60, 0.15), transparent);
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0;
+      animation: heat-shimmer 1.5s ease-in-out infinite;
+    }
+    @keyframes heat-shimmer {
+      0%, 100% { opacity: 0.3; transform: scaleY(1); }
+      50% { opacity: 0.6; transform: scaleY(1.2); }
+    }
+    
+    /* Flour poof on button click */
+    .flour-poof {
+      position: absolute;
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.8) 0%, transparent 70%);
+      pointer-events: none;
+      animation: poof 0.6s ease-out forwards;
+    }
+    @keyframes poof {
+      0% { opacity: 1; transform: scale(0); }
+      50% { opacity: 0.8; }
+      100% { opacity: 0; transform: scale(2.5); }
+    }
+    
+    /* Cookie bounce entrance */
+    .cookie-bounce {
+      animation: cookie-entrance 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) both;
+    }
+    @keyframes cookie-entrance {
+      0% { opacity: 0; transform: scale(0) rotate(-180deg); }
+      60% { transform: scale(1.1) rotate(10deg); }
+      80% { transform: scale(0.95) rotate(-5deg); }
+      100% { opacity: 1; transform: scale(1) rotate(0deg); }
+    }
+    
+    /* Whisk stirring animation */
+    .whisk-stir {
+      display: inline-block;
+      animation: whisk 1s ease-in-out infinite;
+    }
+    @keyframes whisk {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      25% { transform: translateY(-3px) rotate(-8deg); }
+      50% { transform: translateY(0) rotate(0deg); }
+      75% { transform: translateY(-3px) rotate(8deg); }
+    }
+    
+    /* Sugar sparkle */
+    .sugar-sparkle {
+      position: fixed;
+      z-index: 9999;
+      pointer-events: none;
+      animation: sparkle-twinkle 1s ease-out forwards;
+    }
+    @keyframes sparkle-twinkle {
+      0% { opacity: 1; transform: scale(0) rotate(0deg); }
+      50% { opacity: 1; transform: scale(1.5) rotate(180deg); }
+      100% { opacity: 0; transform: scale(0) rotate(360deg); }
+    }
+    
+    /* Rolling pin roll */
+    .rolling-pin {
+      animation: roll-pin 3s linear infinite;
+    }
+    @keyframes roll-pin {
+      0% { transform: translateX(-100%) rotate(0deg); }
+      100% { transform: translateX(100vw) rotate(360deg); }
+    }
+    
+    /* Dough rise animation */
+    .dough-rise {
+      animation: rise 2s ease-in-out infinite;
+    }
+    @keyframes rise {
+      0%, 100% { transform: scaleY(1); }
+      50% { transform: scaleY(1.08); }
+    }
+    
+    /* Butter melt */
+    .butter-melt {
+      animation: melt 3s ease-in-out infinite;
+    }
+    @keyframes melt {
+      0%, 100% { transform: scaleY(1) translateY(0); filter: blur(0); }
+      50% { transform: scaleY(0.85) translateY(2px); filter: blur(0.5px); }
+    }
+    
+    /* Egg crack */
+    .egg-crack {
+      animation: crack 0.5s ease-out forwards;
+    }
+    @keyframes crack {
+      0% { transform: scale(1) rotate(0deg); }
+      25% { transform: scale(1.05) rotate(-5deg); }
+      50% { transform: scale(0.95) rotate(5deg); }
+      75% { transform: scale(1.02) rotate(-2deg); }
+      100% { transform: scale(1) rotate(0deg); opacity: 0; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .cookie-badge, .cookie-crumb, .confetti, #results > *,
+      .bounce-letter, .floating-cookie, .sparkle, .recipe-card:hover,
+      .ripple, #compare-btn:not(:disabled), .cookie-confetti,
+      .insight-card, .bar-fill, .cookie-friend-container:hover .cookie-friend,
+      .typing-cursor::after, #history-list > div, #bake-type-info .inline-flex,
+      .floating-ingredient, .ingredient-rain, .mixing-bowl, .heat-wave,
+      .flour-poof, .cookie-bounce, .whisk-stir, .sugar-sparkle, .rolling-pin,
+      .dough-rise, .butter-melt, .egg-crack
+      { animation: none !important; }
+      .floating-cookie, .floating-ingredient, .heat-wave { display: none; }
+    }
   </style>
 </head>
 <body class="min-h-screen">
   <div class="max-w-6xl mx-auto px-6 py-8">
     <!-- Header -->
-    <header class="text-center mb-10">
+    <header class="text-center mb-10 relative">
+      <div class="cookie-friend-container top-[-20px] left-[-30px] hidden md:block">
+        <svg class="cookie-friend w-12 h-12" viewBox="0 0 100 100" title="Chip">
+          <circle cx="50" cy="50" r="45" fill="#d39a5c" />
+          <circle cx="30" cy="35" r="4" fill="#5c3b2e" />
+          <circle cx="55" cy="32" r="4" fill="#5c3b2e" />
+          <path d="M 32 55 Q 42 65 52 55" fill="none" stroke="#5c3b2e" stroke-width="3" stroke-linecap="round" />
+          <circle cx="70" cy="50" r="6" fill="#5c3b2e" />
+          <circle cx="45" cy="70" r="5" fill="#5c3b2e" />
+          <circle cx="20" cy="65" r="5" fill="#5c3b2e" />
+        </svg>
+      </div>
+      <div class="cookie-friend-container bottom-[-10px] right-[-20px] hidden md:block">
+        <svg class="cookie-friend w-14 h-14" viewBox="0 0 100 100" title="Coco">
+          <circle cx="50" cy="50" r="45" fill="#5c3b2e" />
+          <circle cx="35" cy="40" r="3" fill="#ffffff" opacity="0.8" />
+          <circle cx="65" cy="40" r="3" fill="#ffffff" opacity="0.8" />
+          <path d="M 40 65 Q 50 75 60 65" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" opacity="0.8" />
+          <circle cx="25" cy="30" r="5" fill="#3d261c" />
+          <circle cx="75" cy="65" r="6" fill="#3d261c" />
+          <circle cx="50" cy="80" r="5" fill="#3d261c" />
+        </svg>
+      </div>
+      <button id="cookie-badge" class="cookie-badge" type="button" aria-label="Launch cookie crumbs" title="Cookie crumbs"></button>
       <h1 class="text-[28px] font-bold text-slate-900 mb-2 tracking-tight">Cookie Parser</h1>
-      <p class="text-slate-500 text-sm max-w-lg mx-auto leading-relaxed">Parse, compare, and understand baking recipes — baker's percentages, ratios, technique, and the science behind each recipe.</p>
+      <p class="text-slate-500 text-sm max-w-lg mx-auto leading-relaxed" style="animation: slideUp 0.6s ease-out 0.8s both;">Parse, compare, and understand baking recipes — baker's percentages, ratios, technique, and the science behind each recipe.</p>
     </header>
 
     <!-- Input Section -->
-    <section id="input-section" class="card p-6 mb-8">
+    <section id="input-section" class="card p-6 mb-8" style="animation: slideUp 0.5s ease-out 1s both;">
       <div class="flex items-center justify-between mb-4">
         <h2 class="text-lg font-semibold text-slate-800">Recipes</h2>
         <div class="flex gap-2">
@@ -174,16 +633,13 @@
 
     <!-- Results Section -->
     <section id="results" class="hidden space-y-8">
-      <!-- Bake Type Badge + Warning -->
-      <div id="bake-type-info"></div>
-
       <!-- Headline + Recipe Summary -->
       <div id="headline-section" class="hidden">
         <p id="headline-text" class="text-lg font-medium text-slate-700 leading-relaxed text-center"></p>
       </div>
 
-      <!-- Recipe Cards (compact: title + character + tags) -->
-      <div id="recipe-cards" class="grid gap-6"></div>
+      <!-- Bake Type Badge + Warning -->
+      <div id="bake-type-info"></div>
 
       <!-- AI Analysis (detailed) -->
       <div id="insights-section" class="card p-6">
@@ -197,6 +653,9 @@
           <div id="insights-content" class="md-content"></div>
         </div>
       </div>
+
+      <!-- Recipe Cards (compact: title + character + tags) -->
+      <div id="recipe-cards" class="grid gap-6"></div>
 
       <!-- Key Ratios -->
       <div class="card p-6">
@@ -379,6 +838,30 @@
       renderComparisonTable(data);
       renderConcepts(data.concepts);
       document.getElementById("results").classList.remove("hidden");
+      launchConfetti();
+    }
+
+    function launchCookieBurst(originEl, amount = 18) {
+      if (!originEl || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      const rect = originEl.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+      const colors = ["#d39a5c", "#b8793d", "#8b5e34", "#5c3b2e"];
+
+      for (let i = 0; i < amount; i++) {
+        const crumb = document.createElement("span");
+        crumb.className = "cookie-crumb";
+        crumb.style.left = centerX + "px";
+        crumb.style.top = centerY + "px";
+        crumb.style.background = colors[i % colors.length];
+        const angle = Math.random() * Math.PI * 2;
+        const dist = 30 + Math.random() * 70;
+        crumb.style.setProperty("--tx", `${Math.cos(angle) * dist}px`);
+        crumb.style.setProperty("--ty", `${Math.sin(angle) * dist - 30}px`);
+        crumb.style.setProperty("--rot", `${Math.round(Math.random() * 540)}deg`);
+        document.body.appendChild(crumb);
+        crumb.addEventListener("animationend", () => crumb.remove(), { once: true });
+      }
     }
 
     function renderHeadline(data) {
@@ -395,7 +878,7 @@
       const container = document.getElementById("bake-type-info");
       let html = `<div class="flex items-center gap-3 mb-2">
         <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-100">
-          Comparing as: ${escHtml(data.bakeTypeLabel)}
+          <span class="text-sm">${data.bakeTypeIcon || ""}</span> Comparing as: ${escHtml(data.bakeTypeLabel)}
         </span>
         ${data.referenceRatio ? `<span class="text-[11px] text-slate-400">Reference: ${escHtml(data.referenceRatio.label)} (${escHtml(data.referenceRatio.source)})</span>` : ""}
       </div>`;
@@ -458,6 +941,18 @@
       const catOrder = ["flour", "fat", "sugar", "egg", "dairy", "liquid", "leavening", "flavoring", "other"];
       const catLabels = { flour: "Flour", fat: "Fats", sugar: "Sugars", egg: "Eggs", dairy: "Dairy", liquid: "Liquids", leavening: "Leavening", flavoring: "Flavoring", other: "Other" };
 
+      // Cookie avatars
+      const cookieAvatars = [
+        // Classic
+        `<svg class="w-8 h-8" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#d39a5c"/><circle cx="35" cy="40" r="4" fill="#5c3b2e"/><circle cx="65" cy="40" r="4" fill="#5c3b2e"/><path d="M 40 65 Q 50 75 60 65" fill="none" stroke="#5c3b2e" stroke-width="3" stroke-linecap="round"/><circle cx="20" cy="30" r="5" fill="#5c3b2e"/><circle cx="80" cy="70" r="5" fill="#5c3b2e"/></svg>`,
+        // Dark
+        `<svg class="w-8 h-8" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#5c3b2e"/><circle cx="35" cy="40" r="3" fill="#ffffff" opacity="0.7"/><circle cx="65" cy="40" r="3" fill="#ffffff" opacity="0.7"/><path d="M 40 65 Q 50 75 60 65" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" opacity="0.7"/><circle cx="25" cy="30" r="6" fill="#3d261c"/><circle cx="75" cy="65" r="6" fill="#3d261c"/></svg>`,
+        // Sugar
+        `<svg class="w-8 h-8" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#f3e5ab"/><circle cx="35" cy="40" r="4" fill="#d97706"/><circle cx="65" cy="40" r="4" fill="#d97706"/><path d="M 40 65 Q 50 72 60 65" fill="none" stroke="#d97706" stroke-width="3" stroke-linecap="round"/><circle cx="30" cy="70" r="3" fill="#ef4444"/><circle cx="70" cy="30" r="3" fill="#3b82f6"/><circle cx="50" cy="20" r="3" fill="#10b981"/></svg>`,
+        // Bitten
+        `<svg class="w-8 h-8" viewBox="0 0 100 100"><path d="M 80 20 A 45 45 0 1 0 80 80 A 15 15 0 0 1 70 65 A 15 15 0 0 1 80 50 A 15 15 0 0 1 70 35 A 15 15 0 0 1 80 20" fill="#d39a5c"/><circle cx="35" cy="45" r="4" fill="#5c3b2e"/><circle cx="60" cy="45" r="4" fill="#5c3b2e"/><path d="M 40 65 Q 50 75 60 65" fill="none" stroke="#5c3b2e" stroke-width="3" stroke-linecap="round"/><circle cx="25" cy="25" r="5" fill="#5c3b2e"/><circle cx="45" cy="80" r="5" fill="#5c3b2e"/></svg>`
+      ];
+
       // Build a map of recipe title -> character description
       const descMap = {};
       if (recipeDescriptions) {
@@ -509,12 +1004,18 @@
 
         const character = descMap[a.recipe.title] || "";
         const tags = (a.tags || []).slice(0, 3);
+        const avatar = cookieAvatars[i % cookieAvatars.length];
 
         return `
         <div class="recipe-card p-6" style="--accent: ${COLORS[i]}">
-          <div class="flex items-center gap-2 mb-1">
-            <div class="w-2.5 h-2.5 rounded-full shrink-0" style="background: ${COLORS[i]}"></div>
-            <h3 class="font-semibold text-slate-800 text-sm leading-tight">${escHtml(a.recipe.title)}</h3>
+          <div class="flex items-start justify-between mb-2">
+            <div class="flex items-center gap-2">
+              <div class="w-2.5 h-2.5 rounded-full shrink-0" style="background: ${COLORS[i]}"></div>
+              <h3 class="font-semibold text-slate-800 text-sm leading-tight">${escHtml(a.recipe.title)}</h3>
+            </div>
+            <div class="shrink-0 ml-2 mt-[-4px] opacity-80 hover:opacity-100 transition-opacity">
+              ${avatar}
+            </div>
           </div>
           ${a.recipe.source !== "manual" ? `<a href="${escHtml(a.recipe.source)}" target="_blank" class="text-[11px] text-indigo-500 hover:underline break-all block mb-2">${escHtml(new URL(a.recipe.source).hostname)}</a>` : '<span class="text-[11px] text-slate-400 block mb-2">Manual entry</span>'}
           ${character ? `<p class="text-[13px] text-slate-500 leading-snug mb-3 italic">${escHtml(character)}</p>` : ""}
@@ -651,6 +1152,26 @@
       return d.innerHTML;
     }
 
+    function launchConfetti() {
+      const colors = ["#6366f1", "#f59e0b", "#10b981", "#ef4444", "#8b5cf6", "#ec4899", "#14b8a6"];
+      const shapes = ["circle", "square"];
+      for (let i = 0; i < 50; i++) {
+        setTimeout(() => {
+          const confetti = document.createElement("div");
+          confetti.className = "confetti";
+          confetti.style.left = Math.random() * 100 + "vw";
+          confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+          confetti.style.borderRadius = shapes[Math.floor(Math.random() * shapes.length)] === "circle" ? "50%" : "2px";
+          confetti.style.width = (Math.random() * 8 + 6) + "px";
+          confetti.style.height = confetti.style.width;
+          confetti.style.animationDuration = (Math.random() * 2 + 2) + "s";
+          confetti.style.animationDelay = (Math.random() * 0.5) + "s";
+          document.body.appendChild(confetti);
+          setTimeout(() => confetti.remove(), 4000);
+        }, i * 30);
+      }
+    }
+
     function toggleSection(el) {
       el.classList.toggle("collapsed");
       const body = el.nextElementSibling;
@@ -763,6 +1284,148 @@
 
     refreshHistoryUI();
 
+    // Header easter egg and compare feedback
+    const cookieBadge = document.getElementById("cookie-badge");
+    if (cookieBadge) {
+      cookieBadge.addEventListener("click", () => launchCookieBurst(cookieBadge, 22));
+    }
+    document.getElementById("compare-btn").addEventListener("click", () => {
+      const btn = document.getElementById("compare-btn");
+      launchCookieBurst(btn, 14);
+    });
+
+    // === FUN ANIMATIONS ===
+
+    // 1. Bouncy title entrance — animate each letter
+    (function animateTitle() {
+      const h1 = document.querySelector("header h1");
+      if (!h1 || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      const text = h1.textContent;
+      h1.innerHTML = "";
+      [...text].forEach((char, i) => {
+        const span = document.createElement("span");
+        span.className = "bounce-letter";
+        span.style.animationDelay = `${i * 50}ms`;
+        span.textContent = char === " " ? "\u00A0" : char;
+        h1.appendChild(span);
+      });
+    })();
+
+    // 2. Floating cookie emojis in background
+    (function spawnFloatingCookies() {
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      const emojis = ["🍪", "🧁", "🎂", "🥧", "🍰", "🧈", "🥚", "🌾"];
+      for (let i = 0; i < 8; i++) {
+        const el = document.createElement("div");
+        el.className = "floating-cookie";
+        el.textContent = emojis[i % emojis.length];
+        el.style.left = `${5 + Math.random() * 90}%`;
+        el.style.animationDelay = `${Math.random() * 12}s`;
+        el.style.animationDuration = `${10 + Math.random() * 8}s`;
+        el.style.fontSize = `${18 + Math.random() * 20}px`;
+        document.body.appendChild(el);
+      }
+    })();
+
+    // 3. Sparkle cursor trail
+    (function sparkleTrail() {
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      const sparkles = ["✨", "⭐", "💫", "🌟", "🍪"];
+      let lastSparkle = 0;
+      document.addEventListener("mousemove", (e) => {
+        const now = Date.now();
+        if (now - lastSparkle < 120) return; // throttle
+        lastSparkle = now;
+        if (Math.random() > 0.4) return; // only sometimes
+        const spark = document.createElement("span");
+        spark.className = "sparkle";
+        spark.textContent = sparkles[Math.floor(Math.random() * sparkles.length)];
+        spark.style.left = `${e.clientX + (Math.random() - 0.5) * 20}px`;
+        spark.style.top = `${e.clientY + (Math.random() - 0.5) * 20}px`;
+        document.body.appendChild(spark);
+        spark.addEventListener("animationend", () => spark.remove(), { once: true });
+      });
+    })();
+
+    // 4. Ripple effect on buttons
+    document.addEventListener("click", (e) => {
+      const btn = e.target.closest("button, .btn");
+      if (!btn || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      btn.style.position = btn.style.position || "relative";
+      btn.style.overflow = "hidden";
+      const rect = btn.getBoundingClientRect();
+      const ripple = document.createElement("span");
+      ripple.className = "ripple";
+      const size = Math.max(rect.width, rect.height);
+      ripple.style.width = ripple.style.height = `${size}px`;
+      ripple.style.left = `${e.clientX - rect.left - size / 2}px`;
+      ripple.style.top = `${e.clientY - rect.top - size / 2}px`;
+      btn.appendChild(ripple);
+      ripple.addEventListener("animationend", () => ripple.remove(), { once: true });
+    });
+
+    // 5. Enhanced confetti with cookie emojis (override launchConfetti)
+    const _originalLaunchConfetti = launchConfetti;
+    launchConfetti = function() {
+      _originalLaunchConfetti();
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      const cookieEmojis = ["🍪", "🍪", "🍪", "🧁", "🎉", "✨", "⭐", "🥳", "🎊"];
+      for (let i = 0; i < 20; i++) {
+        setTimeout(() => {
+          const el = document.createElement("span");
+          el.className = "cookie-confetti";
+          el.textContent = cookieEmojis[Math.floor(Math.random() * cookieEmojis.length)];
+          el.style.left = `${Math.random() * 100}vw`;
+          el.style.top = `-30px`;
+          el.style.animationDuration = `${2 + Math.random() * 2}s`;
+          document.body.appendChild(el);
+          el.addEventListener("animationend", () => el.remove(), { once: true });
+        }, i * 80);
+      }
+    };
+
+    // 6. Headline typing effect
+    const _originalRenderHeadline = renderHeadline;
+    renderHeadline = function(data) {
+      const el = document.getElementById("headline-text");
+      if (data.headline && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        el.textContent = "";
+        el.parentElement.classList.remove("hidden");
+        el.classList.add("typing-cursor");
+        const chars = data.headline.split("");
+        let i = 0;
+        const typeInterval = setInterval(() => {
+          if (i < chars.length) {
+            el.textContent += chars[i];
+            i++;
+          } else {
+            clearInterval(typeInterval);
+            setTimeout(() => el.classList.remove("typing-cursor"), 1500);
+          }
+        }, 25);
+      } else {
+        _originalRenderHeadline(data);
+      }
+    };
+
+    // 7. Cookie badge wiggles periodically as a hint
+    (function cookieBadgeWiggle() {
+      const badge = document.getElementById("cookie-badge");
+      if (!badge || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      setInterval(() => {
+        badge.style.animation = "none";
+        badge.offsetHeight; // reflow
+        badge.style.animation = "";
+        badge.animate([
+          { transform: "rotate(0deg) scale(1)" },
+          { transform: "rotate(-10deg) scale(1.1)" },
+          { transform: "rotate(10deg) scale(1.1)" },
+          { transform: "rotate(-5deg) scale(1.05)" },
+          { transform: "rotate(0deg) scale(1)" },
+        ], { duration: 500, easing: "ease-in-out" });
+      }, 8000);
+    })();
+
     // URL param support
     (function loadFromUrlParams() {
       const params = new URLSearchParams(window.location.search);
@@ -786,6 +1449,172 @@
         compare();
       }
     })();
+
+    // === NEW BAKING THEMED ANIMATIONS ===
+    
+    // 1. Floating ingredients in the background
+    (function createFloatingIngredients() {
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      
+      const ingredients = ['🌾', '🥚', '🧈', '🍯', '🥛', '🧂', '🍫'];
+      const container = document.body;
+      
+      function addIngredient() {
+        const ingredient = document.createElement('div');
+        ingredient.className = 'floating-ingredient';
+        ingredient.textContent = ingredients[Math.floor(Math.random() * ingredients.length)];
+        ingredient.style.left = Math.random() * 100 + 'vw';
+        ingredient.style.setProperty('--drift-x', (Math.random() * 200 - 100) + 'px');
+        ingredient.style.animationDelay = Math.random() * 5 + 's';
+        ingredient.style.animationDuration = (12 + Math.random() * 6) + 's';
+        container.appendChild(ingredient);
+        
+        ingredient.addEventListener('animationend', () => ingredient.remove());
+      }
+      
+      // Add ingredients periodically
+      for (let i = 0; i < 6; i++) {
+        setTimeout(addIngredient, i * 3000);
+      }
+      setInterval(() => {
+        if (document.querySelectorAll('.floating-ingredient').length < 8) {
+          addIngredient();
+        }
+      }, 8000);
+    })();
+    
+    // 2. Ingredient rain celebration on comparison complete
+    function launchIngredientRain() {
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      
+      const ingredients = ['🍪', '🥧', '🧁', '🍰', '🥐', '🥖', '🍞', '🥨'];
+      const count = 25;
+      
+      for (let i = 0; i < count; i++) {
+        setTimeout(() => {
+          const el = document.createElement('div');
+          el.className = 'ingredient-rain';
+          el.textContent = ingredients[Math.floor(Math.random() * ingredients.length)];
+          el.style.left = Math.random() * 100 + 'vw';
+          el.style.setProperty('--rain-rot', (Math.random() * 720 - 360) + 'deg');
+          el.style.animationDuration = (1.5 + Math.random() * 1) + 's';
+          el.style.animationDelay = (Math.random() * 0.3) + 's';
+          document.body.appendChild(el);
+          
+          el.addEventListener('animationend', () => el.remove());
+        }, i * 60);
+      }
+    }
+    
+    // 3. Flour poof effect on button click
+    function createFlourPoof(x, y) {
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      
+      const poof = document.createElement('div');
+      poof.className = 'flour-poof';
+      poof.style.left = (x - 40) + 'px';
+      poof.style.top = (y - 40) + 'px';
+      document.body.appendChild(poof);
+      
+      poof.addEventListener('animationend', () => poof.remove());
+    }
+    
+    // 4. Sugar sparkles on hover
+    function createSugarSparkle(x, y) {
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      
+      const sparkle = document.createElement('div');
+      sparkle.className = 'sugar-sparkle';
+      sparkle.textContent = '✨';
+      sparkle.style.left = x + 'px';
+      sparkle.style.top = y + 'px';
+      sparkle.style.fontSize = (12 + Math.random() * 8) + 'px';
+      document.body.appendChild(sparkle);
+      
+      sparkle.addEventListener('animationend', () => sparkle.remove());
+    }
+    
+    // 5. Heat wave effect during loading
+    function showHeatWave() {
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      
+      let wave = document.querySelector('.heat-wave');
+      if (!wave) {
+        wave = document.createElement('div');
+        wave.className = 'heat-wave';
+        document.body.appendChild(wave);
+      }
+      return wave;
+    }
+    
+    function hideHeatWave() {
+      const wave = document.querySelector('.heat-wave');
+      if (wave) wave.remove();
+    }
+    
+    // 6. Add cookie bounce to recipe cards
+    const originalRenderRecipeCards = renderRecipeCards;
+    renderRecipeCards = function(analyses, recipeDescriptions) {
+      originalRenderRecipeCards(analyses, recipeDescriptions);
+      
+      // Add bounce animation to cards
+      document.querySelectorAll('.recipe-card').forEach((card, i) => {
+        card.style.animationDelay = (i * 0.15) + 's';
+        card.classList.add('cookie-bounce');
+      });
+    };
+    
+    // 7. Enhance status display with animations
+    const originalShowStatus = showStatus;
+    showStatus = function(msg) {
+      originalShowStatus(msg);
+      showHeatWave();
+      
+      // Add whisk animation to loading spinner
+      const spinner = document.querySelector('.spinner');
+      if (spinner) {
+        spinner.classList.add('whisk-stir');
+      }
+    };
+    
+    const originalHideStatus = hideStatus;
+    hideStatus = function() {
+      originalHideStatus();
+      hideHeatWave();
+    };
+    
+    // 8. Add ingredient rain to confetti
+    const originalLaunchConfetti = launchConfetti;
+    launchConfetti = function() {
+      originalLaunchConfetti();
+      launchIngredientRain();
+    };
+    
+    // 9. Add flour poof to compare button
+    document.getElementById('compare-btn').addEventListener('click', function(e) {
+      createFlourPoof(e.clientX, e.clientY);
+    });
+    
+    // 10. Add sugar sparkles to recipe cards on hover
+    document.addEventListener('mouseover', function(e) {
+      if (e.target.closest('.recipe-card')) {
+        if (Math.random() > 0.7) { // Only 30% of the time to avoid overload
+          createSugarSparkle(
+            e.clientX + (Math.random() * 40 - 20),
+            e.clientY + (Math.random() * 40 - 20)
+          );
+        }
+      }
+    });
+    
+    // 11. Add mixing bowl animation to compare button
+    const compareBtn = document.getElementById('compare-btn');
+    const originalCompare = compare;
+    compare = async function() {
+      compareBtn.classList.add('mixing-bowl');
+      await originalCompare();
+      setTimeout(() => compareBtn.classList.remove('mixing-bowl'), 1000);
+    };
   </script>
 </body>
 </html>
